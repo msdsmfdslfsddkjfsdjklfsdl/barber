@@ -26,16 +26,39 @@ the prototype is published automatically at:
 
 ## 📸 Screenshots
 
-The barber's mobile app — current client with a live timer, the "next up" card,
-the waiting queue, and walk-in / call actions. Shown here in both languages:
+Every shot below is captured from the running project — the customer **site**
+(web booking + live queue) and the barber **app**.
 
-| Arabic (RTL) | French — with a live incoming booking |
+### Customer site — booking
+
+| 1 · Salon landing | 2 · Choose your barber | 3 · Services + add-ons |
+| :---: | :---: | :---: |
+| <img src="screenshots/site-1-landing.png" width="240" alt="Salon landing" /> | <img src="screenshots/site-2-choose-barber.png" width="240" alt="Choose your barber" /> | <img src="screenshots/site-3-services.png" width="240" alt="Pick services with add-ons" /> |
+
+| 4 · Your details | 5 · Confirmed |
 | :---: | :---: |
-| <img src="uploads/pasted-1779748685812-0.png" width="280" alt="Barber app — Arabic" /> | <img src="uploads/pasted-1779741252023-0.png" width="280" alt="Barber app — French with new booking" /> |
+| <img src="screenshots/site-4-details.png" width="240" alt="Enter your details" /> | <img src="screenshots/site-5-confirmed.png" width="240" alt="Booking confirmed" /> |
 
-In the French shot, the green **"1 nouvelle réservation"** banner and the
-**NOUVEAU** tag on _samadl_'s entry are a booking that just arrived from the
-customer flow — landing live in the queue.
+Services stack into one booking — *Coupe adulte + Barbe* totals **450 DA** and
+carries through the summary, the confirmation, and the barber's queue.
+
+### Customer site — live queue tracker
+
+| Waiting in line | You're next (live) | Session complete |
+| :---: | :---: | :---: |
+| <img src="screenshots/site-queue-waiting.png" width="240" alt="Waiting in the queue" /> | <img src="screenshots/site-queue-your-turn.png" width="240" alt="You're next — live notification" /> | <img src="screenshots/site-queue-done.png" width="240" alt="Session complete" /> |
+
+The position moves up on its own and fires a **"C'est bientôt votre tour"**
+notification the moment you reach the front.
+
+### Barber app
+
+| French | Arabic (RTL) |
+| :---: | :---: |
+| <img src="screenshots/app-barber-fr.png" width="260" alt="Barber app — French" /> | <img src="screenshots/app-barber-ar.png" width="260" alt="Barber app — Arabic, RTL" /> |
+
+The barber sees the current client with a live timer, the next-up card, the
+waiting queue, and the big workflow actions — fully mirrored in Arabic.
 
 ---
 
@@ -45,11 +68,11 @@ The app is presented as three phone artboards on a design canvas:
 
 1. **Customer · Web booking flow** — a mobile webview at `barberdz.com/fade-city`.
    Five steps from open to confirmation:
-   `Salon landing → Pick barber → Pick time & service → Your details → Confirmed`.
+   `Salon landing → Pick barber → Pick time + services → Your details → Confirmed`.
 
 2. **Customer · Live queue tracker** — a single page showing the customer's
-   live position. Three states: **3 people before you**, **you're up next**,
-   and **session complete**.
+   position, which **advances on its own** and notifies them when they're next.
+   Three states: **people ahead of you**, **you're up next**, and **session complete**.
 
 3. **Barber · Mobile app** — a glanceable dashboard: the current client, today's
    stats, the live queue, completed history, plus the big workflow actions
@@ -111,6 +134,8 @@ barber's queue:
 - Plain CSS + design tokens (dark "Fade City" theme: slate background, green
   primary).
 - Google Fonts: Inter, Cairo, Geist Mono, IBM Plex Sans Arabic.
+- **PWA** — a web manifest + service worker make it installable and offline-capable.
+- **localStorage** — persists bookings and barber profile edits (no backend).
 
 This keeps the prototype trivially portable — it's just static files.
 
@@ -160,6 +185,10 @@ run summary (and under the repo's **Environments → github-pages**).
 ```
 .
 ├── index.html              # Entry point — loads React, Babel, then the JSX files
+├── manifest.webmanifest    # PWA manifest (installable, standalone)
+├── sw.js                   # Service worker (offline app shell)
+├── icon-192.png            # PWA app icons
+├── icon-512.png
 ├── src/
 │   ├── data.jsx            # Design tokens, bilingual strings (FR/AR), sample data
 │   ├── ui.jsx              # Shared UI primitives (icons, buttons, etc.)
@@ -170,7 +199,7 @@ run summary (and under the repo's **Environments → github-pages**).
 ├── design-canvas.jsx       # Design-canvas scaffold (sections / artboards)
 ├── ios-frame.jsx           # iOS device frame wrapper
 ├── tweaks-panel.jsx        # Live "Tweaks" control panel
-├── uploads/                # Screenshots & reference images
+├── screenshots/            # App & site screenshots (used in this README)
 └── .github/workflows/      # GitHub Pages deploy workflow
 ```
 
