@@ -96,6 +96,29 @@ function StatusDot({ color, label, mono = false }) {
   );
 }
 
+// iOS-26 "Liquid Glass" button materials — genuinely translucent: a tinted
+// glass that lets the aurora show through, backdrop-blurred and brightened,
+// with a bright specular top edge, an inner rim, and a soft outer glow. Reused
+// by <Button> and spread into the surfaces' inline CTAs so every primary action
+// is the same liquid glass.
+const glassAccent = {
+  background: 'linear-gradient(168deg, rgba(246,212,150,0.42), rgba(200,137,59,0.24))',
+  backdropFilter: 'blur(16px) saturate(200%) brightness(1.08)',
+  WebkitBackdropFilter: 'blur(16px) saturate(200%) brightness(1.08)',
+  border: '1px solid rgba(255,240,220,0.5)',
+  color: '#FFF7EC',
+  textShadow: '0 1px 2px rgba(74,38,4,0.42)',
+  boxShadow: 'inset 0 1px 0.5px rgba(255,255,255,0.78), inset 0 -10px 18px -10px rgba(120,66,16,0.55), inset 0 0 0 1px rgba(255,240,220,0.10), 0 12px 28px -8px rgba(224,168,91,0.5), 0 2px 8px -2px rgba(0,0,0,0.45)',
+};
+const glassNeutral = {
+  background: 'linear-gradient(168deg, rgba(255,255,255,0.24), rgba(255,255,255,0.07))',
+  backdropFilter: 'blur(16px) saturate(180%)',
+  WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+  border: '1px solid rgba(255,255,255,0.34)',
+  color: TOKENS.ink,
+  boxShadow: 'inset 0 1px 0.5px rgba(255,255,255,0.72), inset 0 0 0 1px rgba(255,255,255,0.06), 0 12px 28px -10px rgba(0,0,0,0.55)',
+};
+
 // Primary CTA — iOS-26 liquid-glass pill: specular top highlight, accent glow,
 // and a spring press (the global `button:active{scale}` rule handles the press).
 function Button({ children, onClick, variant = 'primary', size = 'lg', disabled, style, leftIcon, rightIcon }) {
@@ -114,10 +137,8 @@ function Button({ children, onClick, variant = 'primary', size = 'lg', disabled,
     sm: { height: 38, padding: '0 16px', fontSize: 14, borderRadius: 13 },
   };
   const variants = {
-    primary:   { background: 'linear-gradient(180deg, #FFFDF9, #EEE6D6)', color: '#241A0C', fontWeight: 700,
-                 boxShadow: '0 12px 30px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.9)' },
-    accent:    { background: `linear-gradient(180deg, ${TOKENS.accentBright}, ${TOKENS.accentDeep})`, color: '#2A1B06', fontWeight: 800,
-                 boxShadow: `${TOKENS.glow}, inset 0 1px 0 rgba(255,255,255,0.5)` },
+    primary:   { ...glassNeutral, fontWeight: 700 },
+    accent:    { ...glassAccent, fontWeight: 800 },
     secondary: { background: TOKENS.glass, color: TOKENS.ink, border: `1px solid ${TOKENS.glassEdge}`,
                  backdropFilter: TOKENS.blur, WebkitBackdropFilter: TOKENS.blur,
                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10)' },
@@ -131,8 +152,8 @@ function Button({ children, onClick, variant = 'primary', size = 'lg', disabled,
     <button onClick={disabled ? undefined : onClick} disabled={disabled}
       style={{ ...base, ...sizes[size], ...variants[variant], ...style }}>
       {glossy && <span aria-hidden="true" style={{
-        position: 'absolute', insetInline: 0, top: 0, height: '52%', pointerEvents: 'none', zIndex: 0,
-        background: 'linear-gradient(180deg, rgba(255,255,255,0.30), rgba(255,255,255,0))',
+        position: 'absolute', insetInline: 0, top: 0, height: '46%', pointerEvents: 'none', zIndex: 0,
+        background: 'linear-gradient(180deg, rgba(255,255,255,0.42), rgba(255,255,255,0))',
       }} />}
       {leftIcon && <Icon name={leftIcon} size={16} style={z} />}
       <span style={{ ...z, display: 'inline-flex', alignItems: 'center', gap: 9 }}>{children}</span>
@@ -204,4 +225,4 @@ function StepDots({ t, current, total }) {
   );
 }
 
-Object.assign(window, { Icon, BrowserChrome, Avatar, StatusDot, Button, ScreenHeading, StepDots, Aurora });
+Object.assign(window, { Icon, BrowserChrome, Avatar, StatusDot, Button, ScreenHeading, StepDots, Aurora, glassAccent, glassNeutral });

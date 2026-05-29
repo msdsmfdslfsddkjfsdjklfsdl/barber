@@ -185,7 +185,7 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
                 <div style={{ flex: 1, minWidth: 0, fontSize: 14, fontWeight: 600, color: TOKENS.inkSoft }}>{L.closedBanner}</div>
                 <button onClick={() => { setAvailable(true); showToast(L.onToast); }} style={{
                   appearance: 'none', cursor: 'pointer', fontFamily: 'inherit', height: 38, paddingInline: 14, borderRadius: 10,
-                  background: TOKENS.accent, color: '#06210F', border: 'none', fontSize: 13, fontWeight: 800, flexShrink: 0 }}>
+                  ...glassAccent, fontSize: 13, fontWeight: 800, flexShrink: 0 }}>
                   {L.reactivate}
                 </button>
               </div>
@@ -353,7 +353,7 @@ function TimelineRow({ it, last, lang, L, fmt, mmss, over, onFinish, onCall, onS
               {serviceLabel(it, lang)} · <span style={{ color: TOKENS.inkSoft, fontWeight: 600 }}>{fmt(it.price)}</span>
             </div>
             <button onClick={onFinish} style={{ width: '100%', minHeight: 54, marginTop: 14, borderRadius: 12,
-                     cursor: 'pointer', fontFamily: 'inherit', background: TOKENS.accent, color: '#06210F', border: 'none',
+                     cursor: 'pointer', fontFamily: 'inherit', ...glassAccent,
                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 16, fontWeight: 800 }}>
               <Icon name="check" size={20} stroke={2.6} /> {L.finish} · {fmt(it.price)}
             </button>
@@ -385,7 +385,7 @@ function TimelineRow({ it, last, lang, L, fmt, mmss, over, onFinish, onCall, onS
               <Icon name="more" size={20} />
             </button>
             <button onClick={onStart} style={{ minHeight: 44, paddingInline: 16, borderRadius: 12, flexShrink: 0,
-                     cursor: 'pointer', fontFamily: 'inherit', background: TOKENS.accent, color: '#06210F', border: 'none',
+                     cursor: 'pointer', fontFamily: 'inherit', ...glassAccent,
                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 15, fontWeight: 800 }}>
               <Icon name="play" size={15} /> {L.start}
             </button>
@@ -424,7 +424,7 @@ function FastRow({ c, i, lang, L, fmt, onStart, onNoShow, startSide }) {
       }}><Icon name="more" size={20} /></button>
       <button onClick={onStart} style={{
         minHeight: 44, paddingInline: 18, borderRadius: 12, flexShrink: 0, cursor: 'pointer', fontFamily: 'inherit',
-        background: TOKENS.accent, color: '#06210F', border: 'none',
+        ...glassAccent,
         display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 15, fontWeight: 800,
       }}><Icon name="play" size={15} /> {L.start}</button>
     </div>
@@ -451,7 +451,7 @@ function FastPaySheet({ L, t, fmt, client, onClose, onPay }) {
         </div>
         <button onClick={() => onPay(total, 'cash')} style={{
           width: '100%', minHeight: 66, borderRadius: 16, cursor: 'pointer', fontFamily: 'inherit',
-          background: TOKENS.accent, color: '#06210F', border: 'none',
+          ...glassAccent,
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontSize: 19, fontWeight: 800,
         }}><Icon name="check" size={24} stroke={2.6} /> {L.cashIn}</button>
       </div>
@@ -491,7 +491,7 @@ function FastAddSheet({ L, t, lang, fmt, onClose, onAdd }) {
         </div>
         <button onClick={() => onAdd(name, serviceId)} style={{
           width: '100%', minHeight: 60, borderRadius: 14, cursor: 'pointer', fontFamily: 'inherit', marginTop: 20,
-          background: TOKENS.accent, color: '#06210F', border: 'none',
+          ...glassAccent,
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 17, fontWeight: 800,
         }}><Icon name="plus" size={20} stroke={2.4} /> {L.addToQueue}</button>
       </div>
