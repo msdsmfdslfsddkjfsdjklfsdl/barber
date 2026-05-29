@@ -51,14 +51,18 @@ carries through the summary, the confirmation, and the barber's queue.
 The position moves up on its own and fires a **"C'est bientôt votre tour"**
 notification the moment you reach the front.
 
-### Barber app
+### Barber app — Fast mode
 
-| French | Arabic (RTL) |
-| :---: | :---: |
-| <img src="screenshots/app-barber-fr.png" width="260" alt="Barber app — French" /> | <img src="screenshots/app-barber-ar.png" width="260" alt="Barber app — Arabic, RTL" /> |
+Redesigned for rush hours: the chair, the queue, finish-and-charge, and walk-ins
+all on **one screen**, with big one-tap actions and minimal clutter.
 
-The barber sees the current client with a live timer, the next-up card, the
-waiting queue, and the big workflow actions — fully mirrored in Arabic.
+| Command screen | Fast checkout | Add a walk-in | Arabic (RTL) |
+| :---: | :---: | :---: | :---: |
+| <img src="screenshots/redesign-1-now-fr.png" width="200" alt="Barber command screen" /> | <img src="screenshots/redesign-2-checkout-fr.png" width="200" alt="Fast checkout" /> | <img src="screenshots/redesign-3-add-fr.png" width="200" alt="Add a walk-in" /> | <img src="screenshots/redesign-5-now-ar.png" width="200" alt="Fast mode — Arabic, RTL" /> |
+
+One glance shows who's in the chair (with a live timer); **Terminer · Encaisser**
+finishes and charges in two taps; any waiting client starts with one tap; and
+**Ajouter un client** is always in reach.
 
 ---
 
@@ -74,9 +78,9 @@ The app is presented as three phone artboards on a design canvas:
    position, which **advances on its own** and notifies them when they're next.
    Three states: **people ahead of you**, **you're up next**, and **session complete**.
 
-3. **Barber · Mobile app** — a glanceable dashboard: the current client, today's
-   stats, the live queue, completed history, plus the big workflow actions
-   (Start / Finish / Skip / Pause) and a walk-in compose sheet.
+3. **Barber · Mobile app (Fast mode)** — a single rush-hour command screen: the
+   client in the chair, one-tap **finish + charge**, one-tap **start next**,
+   the live queue, walk-ins, and today's takings — built for speed, not browsing.
 
 ---
 

@@ -91,11 +91,11 @@ function App() {
         </DCSection>
 
         {/* ── Section 3: Barber mobile app ──────────────────────────────── */}
-        <DCSection id="barber" title="Barber · Mobile app"
-                   subtitle="Live queue, walk-in compose, per-row call, completed history. Bookings from the customer flow land here instantly.">
-          <DCArtboard id="dashboard" label="Today's queue · receive client orders" width={402} height={874}>
+        <DCSection id="barber" title="Barber · Mobile app — Fast mode"
+                   subtitle="Redesigned for rush hours: the chair, the queue, finish-and-charge, and walk-ins on one screen. Bookings from the customer flow land here instantly.">
+          <DCArtboard id="dashboard" label="Fast mode · run the chair in one tap" width={402} height={874}>
             <IOSDevice width={402} height={874}>
-              <BarberApp lang={t.lang}
+              <BarberFast lang={t.lang}
                          setLang={(v) => setTweak('lang', v)}
                          density={t.density}
                          barberId={activeBarberId}
