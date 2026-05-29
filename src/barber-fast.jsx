@@ -11,7 +11,7 @@ const FAST_STR = {
     call: 'Appeler', skip: 'Passer', startNext: 'Démarrer le prochain', start: 'Démarrer',
     queue: 'File d’attente', empty: 'File vide — soufflez un peu ☕', waiting: 'en attente',
     add: 'Ajouter un client', addToQueue: 'Ajouter à la file', walkIn: 'Walk-in',
-    name: 'Nom (optionnel)', service: 'Service', cashIn: 'Encaisser', cash: 'Espèces',
+    name: 'Nom (optionnel)', service: 'Service', cashIn: 'Encaisser',
     noShow: 'Absent', today: "Aujourd’hui", clients: 'clients', doneToday: 'Terminés',
     revenue: 'Recette', available: 'Disponible', busy: 'Occupé', running: 'en cours',
     tabNow: 'File', tabDone: 'Terminés', tabMore: 'Réglages', language: 'Langue',
@@ -23,7 +23,7 @@ const FAST_STR = {
     call: 'اتصال', skip: 'تخطّي', startNext: 'ابدأ التالي', start: 'ابدأ',
     queue: 'قائمة الانتظار', empty: 'القائمة فارغة — استرِح قليلاً ☕', waiting: 'بالانتظار',
     add: 'إضافة زبون', addToQueue: 'أضف إلى القائمة', walkIn: 'بدون موعد',
-    name: 'الاسم (اختياري)', service: 'الخدمة', cashIn: 'تحصيل', cash: 'نقداً',
+    name: 'الاسم (اختياري)', service: 'الخدمة', cashIn: 'تحصيل',
     noShow: 'غائب', today: 'اليوم', clients: 'زبائن', doneToday: 'المنتهية',
     revenue: 'المداخيل', available: 'متاح', busy: 'مشغول', running: 'جارٍ',
     tabNow: 'القائمة', tabDone: 'المنتهية', tabMore: 'الإعدادات', language: 'اللغة',
@@ -331,14 +331,14 @@ function FastPaySheet({ L, t, fmt, client, onClose, onPay }) {
       <div onClick={e => e.stopPropagation()} style={sheet(t.dir)}>
         <div style={grabber()} />
         <div style={{ textAlign: 'center', marginBottom: 18 }}>
-          <div style={{ fontSize: 14, color: TOKENS.muted }}>{L.cashIn} · {client.name}</div>
+          <div style={{ fontSize: 14, color: TOKENS.muted }}>{client.name}</div>
           <div style={{ fontSize: 46, fontWeight: 800, letterSpacing: '-0.02em', marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{fmt(total)}</div>
         </div>
         <button onClick={() => onPay(total, 'cash')} style={{
           width: '100%', minHeight: 66, borderRadius: 16, cursor: 'pointer', fontFamily: 'inherit',
           background: TOKENS.accent, color: '#06210F', border: 'none',
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontSize: 19, fontWeight: 800,
-        }}><Icon name="check" size={24} stroke={2.6} /> {L.cash}</button>
+        }}><Icon name="check" size={24} stroke={2.6} /> {L.cashIn}</button>
       </div>
     </div>
   );
