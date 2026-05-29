@@ -41,13 +41,13 @@ function BarberApp({ lang = 'fr', setLang, density = 'sparse', barberId = 'sofia
   });
 
   // VIP toggle + customer notes — keyed by row id, persist for the session.
-  const [vipIds, setVipIds] = React.useState(new Set(['2']));    // Yacine M. starts as a regular
+  const [vipIds, setVipIds] = React.useState(new Set([2]));    // Yacine M. (id 2) starts flagged as a régulier
   const toggleVip = (id) => setVipIds(prev => {
     const next = new Set(prev);
     next.has(id) ? next.delete(id) : next.add(id);
     return next;
   });
-  const [notes, setNotes] = React.useState({ '4': 'Coupe dégradé court, pas de cire' });
+  const [notes, setNotes] = React.useState({ 4: 'Coupe dégradé court, pas de cire' });
   const setNote = (id, text) => setNotes(prev => ({ ...prev, [id]: text }));
 
   // Which row is currently expanded with its inline action drawer
@@ -65,7 +65,7 @@ function BarberApp({ lang = 'fr', setLang, density = 'sparse', barberId = 'sofia
 
   // ── Live ticker — only runs when something needs second-by-second updates
   const [now, setNow] = React.useState(() => Date.now());
-  const needsTick = !!pauseMode || true;   // in-session timer always needs to tick
+  const needsTick = true;   // in-session timer + pause countdown both update every second
   React.useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
@@ -276,14 +276,14 @@ function BarberApp({ lang = 'fr', setLang, density = 'sparse', barberId = 'sofia
 
       {/* Confirm-finish prompt */}
       {confirmFinishOpen && inSession && (
-        <ConfirmFinishSheet t={t} item={inSession}
+        <ConfirmFinishSheet t={t} lang={lang} item={inSession}
                             onClose={() => setConfirmFinishOpen(false)}
                             onConfirm={onFinish} />
       )}
 
       {/* Confirm-skip prompt */}
       {confirmSkipOpen && skipTarget && (
-        <ConfirmSkipSheet t={t} item={skipTarget} replacer={skipReplacer}
+        <ConfirmSkipSheet t={t} lang={lang} item={skipTarget} replacer={skipReplacer}
                           onClose={() => setConfirmSkipOpen(false)}
                           onConfirm={performSkip} />
       )}
@@ -382,8 +382,8 @@ function HomeTab({ t, lang, barber, barberId, now, doneRevenue, clientsDone, tot
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               fontSize: 14, fontWeight: 600,
             }}>
-              <Icon name="phone" size={16} />
-              <span>{t.dir === 'rtl' ? 'اتصال بالزبون' : 'Appeler'}</span>
+              <Icon name="skip" size={16} />
+              <span>{t.skip}</span>
             </button>
             <button onClick={requestFinish} style={{
               appearance: 'none', cursor: 'pointer', fontFamily: 'inherit',
@@ -415,7 +415,7 @@ function HomeTab({ t, lang, barber, barberId, now, doneRevenue, clientsDone, tot
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           fontSize: 18, fontWeight: 700,
                           fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
-              2
+              {inSession ? 2 : 1}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 16, fontWeight: 600 }}>{nextUp.name}</div>
@@ -476,7 +476,7 @@ function HomeTab({ t, lang, barber, barberId, now, doneRevenue, clientsDone, tot
                                display: 'flex', alignItems: 'center', justifyContent: 'center',
                                fontSize: 13, fontWeight: 600,
                                fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
-                  {i + 3}
+                  {inSession ? i + 3 : i + 2}
                 </span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 15, fontWeight: 600 }}>{it.name}</div>
@@ -520,7 +520,9 @@ function HomeTab({ t, lang, barber, barberId, now, doneRevenue, clientsDone, tot
 function CircularTimer({ item, now, sessionStartRef, t }) {
   if (sessionStartRef.itemKey !== item.id) {
     sessionStartRef.itemKey = item.id;
-    sessionStartRef.current = Date.now();    // fresh start at 00:00 every time
+    // Honor the client's head start (startedMinAgo) so an in-progress session
+    // shows real elapsed time instead of 00:00; freshly started clients pass 0.
+    sessionStartRef.current = Date.now() - (item.startedMinAgo || 0) * 60 * 1000;
   }
   const elapsedSec = Math.floor((now - sessionStartRef.current) / 1000);
   const mm = String(Math.floor(elapsedSec / 60)).padStart(2, '0');
@@ -606,13 +608,13 @@ function QueueTab({ t, lang, now, visibleWaiting, myLive, walkIns, latestLiveCod
                         showToast(t.toastCancelled(it.name));
                       }}
                       onUndo={() => { clearEdit(it.id); showToast(t.toastUndone); }}
-                      last={false} index={i + 1} />
+                      last={i === visibleWaiting.length - 1 && myLive.length === 0 && walkIns.length === 0} index={i + 1} />
           ))}
           {myLive.map((b, i) => (
             <LiveBookingRow key={b.code} item={b} t={t} lang={lang}
                             index={visibleWaiting.length + i + 1}
                             isLatest={b.code === latestLiveCode}
-                            last={false} />
+                            last={i === myLive.length - 1 && walkIns.length === 0} />
           ))}
           {walkIns.map((w, i) => (
             <WalkInRow key={w.id} item={w} t={t} lang={lang}
@@ -1652,8 +1654,7 @@ function BookingsClosedBanner({ t, onReopen }) {
 // Confirm-skip prompt — shown when the barber taps "Passer".
 // Shows who is being skipped and (when applicable) who takes their place.
 // ────────────────────────────────────────────────────────────────────────
-function ConfirmSkipSheet({ t, item, replacer, onClose, onConfirm }) {
-  const serviceLabel = typeof item.service === 'object' ? item.service.fr : item.service;
+function ConfirmSkipSheet({ t, lang, item, replacer, onClose, onConfirm }) {
   return (
     <div onClick={onClose} style={{
       position: 'absolute', inset: 0, zIndex: 110,
@@ -1693,7 +1694,7 @@ function ConfirmSkipSheet({ t, item, replacer, onClose, onConfirm }) {
               <div style={{ fontSize: 15, fontWeight: 600, color: TOKENS.amber,
                             textDecoration: 'line-through' }}>{item.name}</div>
               <div style={{ fontSize: 12, color: TOKENS.amber, opacity: 0.85, marginTop: 2 }}>
-                {item.time} · {serviceLabel}
+                {item.time} · {serviceLabel(item, lang)}
               </div>
             </div>
             <span style={{ fontSize: 10, fontWeight: 600, color: TOKENS.amber,
@@ -1725,9 +1726,7 @@ function ConfirmSkipSheet({ t, item, replacer, onClose, onConfirm }) {
                   {replacer.name}
                 </div>
                 <div style={{ fontSize: 12, color: TOKENS.accentDeep, opacity: 0.85, marginTop: 2 }}>
-                  {replacer.time} · {typeof replacer.service === 'object'
-                                       ? replacer.service.fr
-                                       : replacer.service}
+                  {replacer.time} · {serviceLabel(replacer, lang)}
                 </div>
               </div>
               <span style={{ fontSize: 10, fontWeight: 600, color: TOKENS.accentDeep,
@@ -1765,8 +1764,7 @@ function ConfirmSkipSheet({ t, item, replacer, onClose, onConfirm }) {
     </div>
   );
 }
-function ConfirmFinishSheet({ t, item, onClose, onConfirm }) {
-  const serviceLabel = typeof item.service === 'object' ? item.service.fr : item.service;
+function ConfirmFinishSheet({ t, lang, item, onClose, onConfirm }) {
   return (
     <div onClick={onClose} style={{
       position: 'absolute', inset: 0, zIndex: 110,
@@ -1798,7 +1796,7 @@ function ConfirmFinishSheet({ t, item, onClose, onConfirm }) {
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 15, fontWeight: 600 }}>{item.name}</div>
             <div style={{ fontSize: 12, color: TOKENS.muted, marginTop: 2 }}>
-              {item.time} · {serviceLabel}
+              {item.time} · {serviceLabel(item, lang)}
             </div>
           </div>
           <div style={{ fontSize: 17, fontWeight: 600,
@@ -1859,7 +1857,7 @@ function SettingsSheet({ t, lang, setLang, barber, barberId, onClose, onUpdatePr
       name: name.trim(),
       specialty: specialty.trim(),
     });
-    onClose();
+    onClose && onClose();   // Settings tab renders this embedded with no onClose
   };
 
   // Revenue moved to its own screen — settings keeps only profile + language.
@@ -2047,14 +2045,8 @@ function RevenueRow({ t, label, amount, clients, accent }) {
 function RevenueScreen({ t, lang, onClose, todayAmount, todayClients, embedded }) {
   const [tab, setTab] = React.useState('week');  // 'day' | 'week' | 'month'
 
-  // Build 7 days of plausible data — last 6 days from a seeded array, today is live.
-  // Today is Mardi (idx 1). We want Mon..Sun, with today at index 1.
-  const past = [9200, /* Lun */
-                todayAmount, /* Mar (today) */
-                /* future from this point */ null, null, null, null, null];
-  // For demo purposes, also show 5 future days as projected = 0 (or skip)
-  const SEED_WEEK = [9200, todayAmount, 0, 0, 0, 0, 0];
-  // Better: show last 7 days with today on the right side
+  // 7 days of revenue ending today: the six prior days are seeded, today is live.
+  // Today is the rightmost bar — BarChart highlights the last index.
   const HISTORY_7D = [6800, 5400, 9100, 11200, 7600, 8200, todayAmount];
   const HISTORY_CLIENTS_7D = [9, 7, 12, 15, 10, 11, todayClients];
 

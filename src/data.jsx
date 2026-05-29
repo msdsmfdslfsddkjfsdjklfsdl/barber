@@ -40,6 +40,7 @@ const I18N = {
     rating: '4,8',
     reviews: '212 avis',
     bookCta: 'Réserver mon tour',
+    back: 'Retour',
     // Simpler step indicator
     stepOf: (i, total) => `Étape ${i} sur ${total}`,
     // pick barber friendly status
@@ -124,7 +125,6 @@ const I18N = {
     nextUp: 'Suivant',
     upcoming: 'À venir',
     clientsToday: 'Clients',
-    revenueToday: 'Revenu',
     avgTime: 'Temps moyen',
     elapsed: 'En cours',
     waitingFor: 'Attente',
@@ -264,6 +264,7 @@ const I18N = {
     rating: '4.8',
     reviews: '212 تقييم',
     bookCta: 'احجز دوري',
+    back: 'رجوع',
     stepOf: (i, total) => `الخطوة ${i} من ${total}`,
     freeNowFriendly: 'متاح فوراً',
     waitTextShort: (m) => `حوالي ${m} د. انتظار`,
@@ -338,7 +339,6 @@ const I18N = {
     nextUp: 'التالي',
     upcoming: 'قادم',
     clientsToday: 'زبائن',
-    revenueToday: 'الدخل',
     avgTime: 'معدل الوقت',
     elapsed: 'منذ',
     waitingFor: 'ينتظر',

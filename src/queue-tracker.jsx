@@ -76,7 +76,8 @@ function QueueTracker({ lang = 'fr', position = 'three', embeddedBarber, service
                          : `${barber.specialty[lang]}`}
               </div>
             </div>
-            <button style={{ width: 36, height: 36, borderRadius: 10, border: `1px solid ${TOKENS.border}`,
+            <button aria-label={t.dir === 'rtl' ? 'الاتصال بالحلاق' : 'Appeler le coiffeur'}
+                    style={{ width: 36, height: 36, borderRadius: 10, border: `1px solid ${TOKENS.border}`,
                              background: TOKENS.surface, cursor: 'pointer', display: 'flex',
                              alignItems: 'center', justifyContent: 'center', color: TOKENS.ink }}>
               <Icon name="phone" size={15} />
@@ -122,7 +123,7 @@ function WaitHero({ t, before, eta }) {
           {before + 1}
         </span>
         <span style={{ fontSize: 18, color: TOKENS.muted, fontWeight: 400 }}>
-          / {before + 4}
+          / {before + 2}
         </span>
       </div>
       <div style={{ fontSize: 14, color: TOKENS.inkSoft, marginBottom: 18 }}>
@@ -150,7 +151,7 @@ function NextHero({ t, eta }) {
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 6 }}>
         <span style={{ fontFamily: "'Geist Mono', ui-monospace, monospace",
                        fontSize: 72, fontWeight: 500, lineHeight: 1, letterSpacing: '-0.04em' }}>1</span>
-        <span style={{ fontSize: 18, color: TOKENS.muted, fontWeight: 400 }}>/ 5</span>
+        <span style={{ fontSize: 18, color: TOKENS.muted, fontWeight: 400 }}>/ 2</span>
       </div>
       <div style={{ fontSize: 14, color: TOKENS.inkSoft, marginBottom: 18, lineHeight: 1.45 }}>
         {t.nextSubtitle}
