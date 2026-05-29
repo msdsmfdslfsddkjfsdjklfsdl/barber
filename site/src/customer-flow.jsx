@@ -64,15 +64,18 @@ function CustomerFlow({ lang = 'fr', density = 'sparse', barberOverrides = {}, o
   React.useEffect(() => { /* no-op, keep state across lang flip */ }, [lang]);
 
   const surface = {
-    fontFamily: t.fontFamily, direction: t.dir, background: TOKENS.surface,
+    fontFamily: t.fontFamily, direction: t.dir, background: TOKENS.paper,
     color: TOKENS.ink, height: '100%', display: 'flex', flexDirection: 'column',
     fontFeatureSettings: '"ss01" on, "cv11" on',
+    position: 'relative', overflow: 'hidden',
   };
 
   return (
     <div style={surface}>
-      <div key={step} style={{
+      <Aurora />
+      <div key={step} className="lg-rise" style={{
         flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column',
+        position: 'relative', zIndex: 1,
         animation: 'fc-step-in 280ms cubic-bezier(0.2, 0.8, 0.2, 1)',
       }}>
         {step === 0 && <SalonLanding t={t} onBook={() => setStep(1)} />}
@@ -141,7 +144,7 @@ function SalonLanding({ t, onBook }) {
   const shortestEta = open.length ? Math.min(...open.map(b => b.etaMin || 0)) : 0;
   const waitLabel = shortestEta <= 0 ? (t.dir === 'rtl' ? 'الآن' : 'maintenant') : `~${shortestEta} ${t.min}`;
   return (
-    <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+    <div className="lg-rise" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
       {/* Hero "image" placeholder — striped, gives the shop a sense of presence */}
       <div style={{
         height: 220, position: 'relative', flexShrink: 0,
@@ -177,7 +180,7 @@ function SalonLanding({ t, onBook }) {
 
         {/* Live "now" snapshot — shortest wait + the team (fills the space with useful info) */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div style={{ background: TOKENS.surface, border: `1px solid ${TOKENS.borderSoft}`, borderRadius: 16,
+          <div style={{ background: TOKENS.surface, border: `1px solid ${TOKENS.borderSoft}`, borderRadius: 20,
                         padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 14, boxShadow: TOKENS.shadowSm }}>
             <div style={{ width: 44, height: 44, borderRadius: 12, background: TOKENS.accentSoft, color: TOKENS.accent,
                           display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -197,7 +200,7 @@ function SalonLanding({ t, onBook }) {
               {t.dir === 'rtl' ? 'مباشر' : 'En direct'}
             </span>
           </div>
-          <div style={{ background: TOKENS.surface, border: `1px solid ${TOKENS.borderSoft}`, borderRadius: 16,
+          <div style={{ background: TOKENS.surface, border: `1px solid ${TOKENS.borderSoft}`, borderRadius: 20,
                         padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 14, boxShadow: TOKENS.shadowSm }}>
             <div style={{ display: 'flex' }}>
               {BARBERS.slice(0, 4).map((b, i) => (
@@ -228,7 +231,7 @@ function PickBarber({ t, lang, value, barberOverrides = {}, onPick, onBack }) {
   return (
     <FlowShell t={t} onBack={onBack} stepIndex={0}>
       <ScreenHeading title={t.pickBarberTitle} subtitle={t.pickBarberSub} />
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div className="lg-stagger" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {BARBERS.map(rawBarber => {
           const barber = resolveBarber(rawBarber.id, barberOverrides);
           return (
@@ -263,7 +266,7 @@ function BarberCard({ barber, lang, t, selected, onClick }) {
       cursor: isOffline ? 'not-allowed' : 'pointer',
       background: selected ? TOKENS.surfaceAlt : TOKENS.surface,
       border: `1px solid ${selected ? TOKENS.ink : TOKENS.border}`,
-      borderRadius: 16, padding: '18px 18px',
+      borderRadius: 20, padding: '18px 18px',
       display: 'flex', alignItems: 'center', gap: 16,
       fontFamily: 'inherit', color: TOKENS.ink, minHeight: 96,
       opacity: isOffline ? 0.55 : 1,
@@ -328,8 +331,10 @@ function PickTime({ t, lang, barber, serviceIds, onToggleService, dayIdx, onDay,
 
       {/* Selected barber pill — minimal, just identity */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px',
-                    border: `1px solid ${TOKENS.border}`, borderRadius: 14, marginBottom: 18,
-                    background: TOKENS.surfaceAlt }}>
+                    border: `1px solid ${TOKENS.border}`, borderRadius: 20, marginBottom: 18,
+                    background: TOKENS.surfaceAlt,
+                    backdropFilter: TOKENS.blur, WebkitBackdropFilter: TOKENS.blur,
+                    boxShadow: 'inset 0 1px 0 rgba(255,246,232,0.12), ' + TOKENS.shadowMd }}>
         <Avatar initials={barber.initials} tint={barber.tint} text={barber.text} size={36} />
         <div style={{ flex: 1, fontSize: 14 }}>
           <div style={{ fontWeight: 600, color: TOKENS.ink }}>{barber.name[lang]}</div>
@@ -345,7 +350,7 @@ function PickTime({ t, lang, barber, serviceIds, onToggleService, dayIdx, onDay,
         {[t.today, t.tomorrow].map((label, i) => (
           <button key={label} onClick={() => onDay(i)} style={{
             appearance: 'none', cursor: 'pointer', fontFamily: 'inherit',
-            flex: 1, height: 52, borderRadius: 14,
+            flex: 1, height: 52, borderRadius: 18,
             background: dayIdx === i ? TOKENS.ink : TOKENS.surface,
             color: dayIdx === i ? '#fff' : TOKENS.ink,
             border: `1px solid ${dayIdx === i ? TOKENS.ink : TOKENS.border}`,
@@ -356,11 +361,13 @@ function PickTime({ t, lang, barber, serviceIds, onToggleService, dayIdx, onDay,
 
       {/* Hero soonest card */}
       {soonest && dayIdx === 0 && (
-        <button onClick={() => onPick(soonest)} style={{
+        <button onClick={() => onPick(soonest)} className="lg-sheen" style={{
           width: '100%', textAlign: 'start',
           appearance: 'none', cursor: 'pointer', fontFamily: 'inherit',
-          padding: '20px 22px', borderRadius: 16, marginBottom: 18,
+          padding: '20px 22px', borderRadius: 22, marginBottom: 18,
           background: TOKENS.accent, color: '#fff', border: 'none',
+          backdropFilter: TOKENS.blur, WebkitBackdropFilter: TOKENS.blur,
+          boxShadow: 'inset 0 1px 0 rgba(255,246,232,0.12), ' + TOKENS.shadowMd,
           display: 'flex', alignItems: 'center', gap: 16,
         }}>
           <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'rgba(255,255,255,0.18)',
@@ -381,14 +388,14 @@ function PickTime({ t, lang, barber, serviceIds, onToggleService, dayIdx, onDay,
       )}
 
       {/* Grid of other slots */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+      <div className="lg-stagger" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
         {visibleSlots.map(s => {
           const isSel = value === s;
           const rel = relLabel(s);
           return (
             <button key={s} onClick={() => onPick(s)} style={{
               appearance: 'none', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'start',
-              padding: '14px 16px', borderRadius: 14, minHeight: 76,
+              padding: '14px 16px', borderRadius: 18, minHeight: 76,
               background: isSel ? TOKENS.ink : TOKENS.surface,
               color: isSel ? '#fff' : TOKENS.ink,
               border: `1px solid ${isSel ? TOKENS.ink : TOKENS.border}`,
@@ -412,7 +419,7 @@ function PickTime({ t, lang, barber, serviceIds, onToggleService, dayIdx, onDay,
       {hiddenCount > 0 && !showAll && (
         <button onClick={() => setShowAll(true)} style={{
           appearance: 'none', cursor: 'pointer', fontFamily: 'inherit',
-          marginTop: 16, width: '100%', height: 52, borderRadius: 14,
+          marginTop: 16, width: '100%', height: 52, borderRadius: 18,
           background: 'transparent', color: TOKENS.ink, fontSize: 15, fontWeight: 500,
           border: `1px solid ${TOKENS.border}`,
         }}>
@@ -439,7 +446,7 @@ function ServicePicker({ t, lang, value, onToggle }) {
       <div style={{ fontSize: 12, color: TOKENS.muted, fontWeight: 500, marginBottom: 8 }}>
         {t.servicePickerLabel}
       </div>
-      <div style={{ border: `1px solid ${TOKENS.border}`, borderRadius: 14,
+      <div style={{ border: `1px solid ${TOKENS.border}`, borderRadius: 18,
                     overflow: 'hidden', background: TOKENS.surface }}>
         {/* Header (always visible) */}
         <button onClick={() => setOpen(o => !o)} style={{
@@ -538,7 +545,7 @@ function DetailsStep({ t, barber, lang, service, timeKey, dayIdx, name, phone, s
 
 function inputStyle(t) {
   return {
-    width: '100%', height: 64, borderRadius: 14, paddingInline: 18,
+    width: '100%', height: 64, borderRadius: 18, paddingInline: 18,
     border: `1px solid ${TOKENS.border}`, background: TOKENS.surface,
     fontFamily: 'inherit', fontSize: 19, fontWeight: 500, color: TOKENS.ink, outline: 'none',
     direction: t.dir,
@@ -571,7 +578,7 @@ function Field({ label, children, icon, prefix }) {
 
 function SummaryCard({ t, barber, lang, service, timeKey, dayIdx }) {
   return (
-    <div style={{ border: `1px solid ${TOKENS.border}`, borderRadius: 12, overflow: 'hidden' }}>
+    <div style={{ border: `1px solid ${TOKENS.border}`, borderRadius: 20, overflow: 'hidden' }}>
       <Row label={t.yourBarber}>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
           <Avatar initials={barber.initials} tint={barber.tint} text={barber.text} size={22} />
@@ -628,7 +635,9 @@ function ConfirmedStep({ t, barber, lang, service, timeKey, dayIdx, name, code, 
       </div>
 
       {/* Single summary card — barber + time + price + a small "show this screen" hint */}
-      <div style={{ border: `1px solid ${TOKENS.border}`, borderRadius: 16, background: TOKENS.surface,
+      <div style={{ border: `1px solid ${TOKENS.border}`, borderRadius: 22, background: TOKENS.surface,
+                    backdropFilter: TOKENS.blur, WebkitBackdropFilter: TOKENS.blur,
+                    boxShadow: 'inset 0 1px 0 rgba(255,246,232,0.12), ' + TOKENS.shadowMd,
                     overflow: 'hidden' }}>
         <div style={{ padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 14 }}>
           <Avatar initials={barber.initials} tint={barber.tint} text={barber.text} size={48} />
@@ -666,10 +675,12 @@ function ConfirmedStep({ t, barber, lang, service, timeKey, dayIdx, name, code, 
 // ─────────────────────────────────────────────────────────────
 function FlowShell({ t, onBack, stepIndex, hideBack, hideSteps, footer, children }) {
   return (
-    <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+    <div className="lg-rise" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
       <div style={{ padding: '18px 22px 14px',
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                     gap: 12, flexShrink: 0, background: TOKENS.surface,
+                    backdropFilter: TOKENS.blur, WebkitBackdropFilter: TOKENS.blur,
+                    boxShadow: 'inset 0 1px 0 rgba(255,246,232,0.10)',
                     minHeight: hideSteps && hideBack ? 0 : undefined }}>
         {!hideBack ? (
           <button onClick={onBack} style={{ appearance: 'none', border: `1px solid ${TOKENS.border}`,
@@ -688,7 +699,9 @@ function FlowShell({ t, onBack, stepIndex, hideBack, hideSteps, footer, children
       </div>
       {footer && (
         <div style={{ padding: '14px 22px 22px',
-                      background: TOKENS.surface, flexShrink: 0 }}>
+                      background: TOKENS.surface, flexShrink: 0,
+                      backdropFilter: TOKENS.blur, WebkitBackdropFilter: TOKENS.blur,
+                      boxShadow: 'inset 0 1px 0 rgba(255,246,232,0.10)' }}>
           {footer}
         </div>
       )}
