@@ -34,6 +34,28 @@ const FAST_STR = {
   },
 };
 
+// Smoothly counts a number up to its new value (skips when reduce-motion is on).
+function useCountUp(value, ms = 480) {
+  const [shown, setShown] = React.useState(value);
+  const prev = React.useRef(value);
+  React.useEffect(() => {
+    const reduce = typeof window !== 'undefined' && window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const from = prev.current, to = value;
+    if (reduce || from === to) { prev.current = to; setShown(to); return; }
+    const start = performance.now(); let raf;
+    const tick = (n) => {
+      const p = Math.min(1, (n - start) / ms);
+      const e = 1 - Math.pow(1 - p, 3);
+      setShown(Math.round(from + (to - from) * e));
+      if (p < 1) raf = requestAnimationFrame(tick); else prev.current = to;
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value, ms]);
+  return shown;
+}
+
 function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofiane',
                      liveBookings = [], barberOverrides = {}, onUpdateProfile }) {
   const t = I18N[lang];
@@ -76,15 +98,19 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
 
   const doneList = [...baseDone, ...doneExtra];
   const revenue = doneList.reduce((s, c) => s + (c.price || 0), 0);
+  const revShown = useCountUp(revenue);
 
   // ── Actions ───────────────────────────────────────────────────────────────
-  const startClient = (c) => { setCurrent({ client: c, startedAt: Date.now() }); setRemoved(p => new Set(p).add(c.id)); };
+  const buzz = (ms) => { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {} };
+  const startClient = (c) => { buzz(10); setCurrent({ client: c, startedAt: Date.now() }); setRemoved(p => new Set(p).add(c.id)); };
   const noShow = (c) => { setRemoved(p => new Set(p).add(c.id)); showToast(`${L.noShowToast} · ${c.name}`); };
   const confirmPay = (total, method) => {
+    buzz(18);
     if (current) setDoneExtra(p => [...p, { name: current.client.name, service: current.client.service, price: total, method }]);
     setPayOpen(false); setCurrent(null); showToast(L.paidToast(fmt(total)));
   };
   const addClient = (name, serviceId) => {
+    buzz(10);
     const svc = SERVICES.find(s => s.id === serviceId) || SERVICES[0];
     const c = { id: 'w' + Date.now(), name: (name || '').trim() || L.walkIn, service: svc.name, price: svc.price, walkIn: true };
     setWalkIns(p => [...p, c]); setAddOpen(false); showToast(`${L.addedToast} · ${c.name}`);
@@ -92,6 +118,8 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
 
   const elapsed = current ? Math.max(0, Math.floor((now - current.startedAt) / 1000)) : 0;
   const mmss = `${String(Math.floor(elapsed / 60)).padStart(2, '0')}:${String(elapsed % 60).padStart(2, '0')}`;
+  const EXPECTED = 30 * 60;                       // typical cut; over this the timer goes amber
+  const over = !!current && elapsed > EXPECTED;
 
   const shell = {
     height: '100%', display: 'flex', flexDirection: 'column', position: 'relative',
@@ -101,7 +129,7 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
   const startSide = dir === 'rtl' ? 'right' : 'left';
 
   return (
-    <div style={shell}>
+    <div style={shell} className="fast-shell">
       {/* ── Compact header: identity + glanceable today total ─────────────── */}
       <div style={{ flexShrink: 0, padding: '14px 16px 12px',
                     display: 'flex', alignItems: 'center', gap: 12,
@@ -115,7 +143,7 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
           <StatusDot color={TOKENS.green} label={L.available} />
         </div>
         <div style={{ textAlign: dir === 'rtl' ? 'left' : 'right', lineHeight: 1.1 }}>
-          <div style={{ fontSize: 18, fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>{fmt(revenue)}</div>
+          <div style={{ fontSize: 18, fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>{fmt(revShown)}</div>
           <div style={{ fontSize: 12, color: TOKENS.muted, marginTop: 2 }}>{doneList.length} {L.clients} · {L.today}</div>
         </div>
       </div>
@@ -125,13 +153,15 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
         {tab === 'now' && (
           <>
             {/* CURRENT CLIENT — the focus, with the single most important action */}
+            <div key={current ? 'chair-' + current.client.id : 'chair-empty'} className="fast-chair"
+                 style={{ animation: 'fast-chair-in 280ms cubic-bezier(0.2,0.8,0.2,1)' }}>
             {current ? (
               <div style={{ background: TOKENS.surfaceAlt, borderRadius: 20, padding: 18, marginBottom: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
                   <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: TOKENS.accent }}>{L.inChair}</span>
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 600,
-                                 color: TOKENS.muted, fontVariantNumeric: 'tabular-nums' }}>
-                    <Icon name="clock" size={14} /> {mmss} <span style={{ fontWeight: 400 }}>· {L.running}</span>
+                                 color: over ? TOKENS.amber : TOKENS.muted, fontVariantNumeric: 'tabular-nums' }}>
+                    <Icon name="clock" size={14} /> {mmss} <span style={{ fontWeight: 400 }}>· {over ? (lang === 'ar' ? 'تأخّر' : 'dépassé') : L.running}</span>
                   </span>
                 </div>
                 <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.02em' }}>{current.client.name}</div>
@@ -167,6 +197,7 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
                 )}
               </div>
             )}
+            </div>
 
             {/* QUEUE — large, tappable rows; each can be started in one tap */}
             {waiting.length > 0 && (
@@ -218,8 +249,18 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
       {payOpen && current && <FastPaySheet L={L} t={t} fmt={fmt} client={current.client} onClose={() => setPayOpen(false)} onPay={confirmPay} />}
       {addOpen && <FastAddSheet L={L} t={t} lang={lang} fmt={fmt} onClose={() => setAddOpen(false)} onAdd={addClient} />}
 
-      <style>{`@keyframes fast-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        @keyframes fast-fade { from { opacity: 0; } to { opacity: 1; } }`}</style>
+      <style>{`
+        @keyframes fast-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        @keyframes fast-fade { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fast-chair-in { from { opacity: 0; transform: translateY(12px) scale(0.99); } to { opacity: 1; transform: none; } }
+        @keyframes fast-row-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+        .fast-shell button { transition: transform 90ms ease; -webkit-tap-highlight-color: transparent; }
+        .fast-shell button:active { transform: scale(0.965); }
+        @media (prefers-reduced-motion: reduce) {
+          .fast-shell button:active { transform: none; }
+          .fast-shell .fast-chair, .fast-shell .fast-row { animation: none !important; }
+        }
+      `}</style>
     </div>
   );
 
@@ -246,8 +287,9 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
 // One large queue row — name + service + one-tap "Start", with no-show tucked away.
 function FastRow({ c, i, lang, L, fmt, onStart, onNoShow, startSide }) {
   return (
-    <div style={{ background: TOKENS.surface, borderRadius: 16, padding: '12px 12px 12px 14px',
-                  display: 'flex', alignItems: 'center', gap: 12, minHeight: 72 }}>
+    <div className="fast-row" style={{ background: TOKENS.surface, borderRadius: 16, padding: '12px 12px 12px 14px',
+                  display: 'flex', alignItems: 'center', gap: 12, minHeight: 72,
+                  animation: 'fast-row-in 260ms ease both', animationDelay: `${Math.min(i, 6) * 35}ms` }}>
       <div style={{ width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
                     background: TOKENS.surfaceAlt, color: TOKENS.muted, fontWeight: 700,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -363,11 +405,12 @@ function FastAddSheet({ L, t, lang, fmt, onClose, onAdd }) {
 }
 
 function FastDone({ L, lang, list, fmt, revenue }) {
+  const shown = useCountUp(revenue);
   return (
     <div>
       <div style={{ background: TOKENS.surfaceAlt, borderRadius: 18, padding: 18, marginBottom: 16, textAlign: 'center' }}>
         <div style={{ fontSize: 13, color: TOKENS.muted, textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>{L.revenue} · {L.today}</div>
-        <div style={{ fontSize: 40, fontWeight: 800, marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{fmt(revenue)}</div>
+        <div style={{ fontSize: 40, fontWeight: 800, marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{fmt(shown)}</div>
         <div style={{ fontSize: 14, color: TOKENS.muted, marginTop: 2 }}>{list.length} {L.clients}</div>
       </div>
       {list.length === 0 ? (

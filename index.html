@@ -44,19 +44,16 @@
   }
   .ambient-blur.a { top: -120px; left: -120px; width: 420px; height: 420px;
                     background: radial-gradient(circle, rgba(22,163,74,0.20), transparent 70%);
-                    animation: heart-pulse 2.8s ease-in-out infinite, drift-a 32s ease-in-out infinite; }
+                    animation: heart-pulse 6s ease-in-out infinite, drift-a 32s ease-in-out infinite; }
   .ambient-blur.b { bottom: -160px; right: -160px; width: 500px; height: 500px;
                     background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 70%);
-                    animation: heart-pulse 2.8s ease-in-out infinite 0.3s, drift-b 38s ease-in-out infinite; }
+                    animation: heart-pulse 6s ease-in-out infinite 0.3s, drift-b 38s ease-in-out infinite; }
   .ambient-blur.c { top: 35%; right: -140px; width: 340px; height: 340px;
                     background: radial-gradient(circle, rgba(34,197,94,0.15), transparent 70%);
-                    animation: heart-pulse 2.8s ease-in-out infinite 0.6s, drift-c 28s ease-in-out infinite; }
+                    animation: heart-pulse 6s ease-in-out infinite 0.6s, drift-c 28s ease-in-out infinite; }
   @keyframes heart-pulse {
-    0%, 100% { opacity: 0.30; transform: scale(1); }
-    14%      { opacity: 0.55; transform: scale(1.12); }
-    28%      { opacity: 0.38; transform: scale(1.04); }
-    42%      { opacity: 0.60; transform: scale(1.16); }
-    70%      { opacity: 0.32; transform: scale(1); }
+    0%, 100% { opacity: 0.16; transform: scale(1); }
+    50%      { opacity: 0.28; transform: scale(1.06); }
   }
   @keyframes drift-a {
     0%, 100% { transform: translate(0, 0); }
@@ -69,6 +66,15 @@
   @keyframes drift-c {
     0%, 100% { transform: translate(0, 0); }
     50%      { transform: translate(-40px, 50px); }
+  }
+
+  /* Respect users who prefer less motion: still the ambient glow + all animation. */
+  @media (prefers-reduced-motion: reduce) {
+    .ambient-blur { animation: none !important; opacity: 0.14; }
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important; animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important; scroll-behavior: auto !important;
+    }
   }
 </style>
 </head>
