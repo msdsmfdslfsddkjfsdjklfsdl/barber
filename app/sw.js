@@ -1,5 +1,5 @@
-// Service worker — Fade City barber app (standalone, offline shell).
-const CACHE = 'fade-city-app-v1';
+// Service worker — Barber 16 barber app (standalone, offline shell).
+const CACHE = 'barber-16-app-v1';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png',
   './vendor/react.production.min.js', './vendor/react-dom.production.min.js', './vendor/babel.min.js',

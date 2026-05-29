@@ -1,4 +1,4 @@
-# Fade City — Barber app (standalone)
+# Barber 16 — Barber app (standalone)
 
 The installable barber dashboard — **"Fast mode"** for rush hours: the client in
 the chair with one-tap **finish + cash**, the live queue (start any client in one

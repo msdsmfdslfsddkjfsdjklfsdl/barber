@@ -1,6 +1,6 @@
 {
-  "name": "Fade City — Booking & Queue",
-  "short_name": "Fade City",
+  "name": "Barber 16 — Booking & Queue",
+  "short_name": "Barber 16",
   "description": "Book your barber and watch your place in the live queue.",
   "start_url": "./",
   "scope": "./",

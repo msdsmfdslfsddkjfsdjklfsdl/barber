@@ -1,7 +1,7 @@
-// Fade City service worker — installable PWA + offline shell.
+// Barber 16 service worker — installable PWA + offline shell.
 // Cache-first for the local app files; CDN deps (React/Babel from unpkg) are
 // cached opaquely on first online load so the app keeps working offline.
-const CACHE = 'fade-city-v4';
+const CACHE = 'barber-16-v4';
 const ASSETS = [
   './',
   './index.html',

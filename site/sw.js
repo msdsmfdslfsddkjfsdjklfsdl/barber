@@ -1,5 +1,5 @@
-// Service worker — Fade City booking site (standalone, offline shell).
-const CACHE = 'fade-city-site-v1';
+// Service worker — Barber 16 booking site (standalone, offline shell).
+const CACHE = 'barber-16-site-v1';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png',
   './vendor/react.production.min.js', './vendor/react-dom.production.min.js', './vendor/babel.min.js',

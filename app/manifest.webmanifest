@@ -1,6 +1,6 @@
 {
-  "name": "Fade City — Barbier",
-  "short_name": "Fade City",
+  "name": "Barber 16 — Barbier",
+  "short_name": "Barber 16",
   "description": "Tableau de bord du barbier : file d'attente, encaissement, walk-ins.",
   "start_url": "./",
   "scope": "./",
