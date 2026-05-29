@@ -137,6 +137,9 @@ function CustomerFlow({ lang = 'fr', density = 'sparse', barberOverrides = {}, o
 // STEP 0 — Salon landing (intentionally minimal — name, address, status, CTA)
 // ─────────────────────────────────────────────────────────────
 function SalonLanding({ t, onBook }) {
+  const open = BARBERS.filter(b => b.state !== 'break');
+  const shortestEta = open.length ? Math.min(...open.map(b => b.etaMin || 0)) : 0;
+  const waitLabel = shortestEta <= 0 ? (t.dir === 'rtl' ? 'الآن' : 'maintenant') : `~${shortestEta} ${t.min}`;
   return (
     <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
       {/* Hero "image" placeholder — striped, gives the shop a sense of presence */}
@@ -172,7 +175,45 @@ function SalonLanding({ t, onBook }) {
           <span>{t.salonAddr}</span>
         </div>
 
-        <div style={{ flex: 1 }} />
+        {/* Live "now" snapshot — shortest wait + the team (fills the space with useful info) */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ background: TOKENS.surface, border: `1px solid ${TOKENS.borderSoft}`, borderRadius: 16,
+                        padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 14, boxShadow: TOKENS.shadowSm }}>
+            <div style={{ width: 44, height: 44, borderRadius: 12, background: TOKENS.accentSoft, color: TOKENS.accent,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Icon name="clock" size={22} />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13, color: TOKENS.muted }}>
+                {t.dir === 'rtl' ? 'أقصر انتظار الآن' : 'Attente la plus courte'}
+              </div>
+              <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.01em', fontVariantNumeric: 'tabular-nums' }}>
+                {waitLabel}
+              </div>
+            </div>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: TOKENS.accent }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: TOKENS.accent,
+                             animation: 'fc-pulse 1.8s ease-in-out infinite' }} />
+              {t.dir === 'rtl' ? 'مباشر' : 'En direct'}
+            </span>
+          </div>
+          <div style={{ background: TOKENS.surface, border: `1px solid ${TOKENS.borderSoft}`, borderRadius: 16,
+                        padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 14, boxShadow: TOKENS.shadowSm }}>
+            <div style={{ display: 'flex' }}>
+              {BARBERS.slice(0, 4).map((b, i) => (
+                <div key={b.id} style={{ marginInlineStart: i ? -10 : 0, borderRadius: '50%',
+                                         boxShadow: `0 0 0 2px ${TOKENS.surface}` }}>
+                  <Avatar initials={b.initials} tint={b.tint} text={b.text} size={34} />
+                </div>
+              ))}
+            </div>
+            <div style={{ flex: 1, fontSize: 14, color: TOKENS.inkSoft, fontWeight: 600 }}>
+              {t.dir === 'rtl' ? `${open.length} حلاقون متاحون` : `${open.length} coiffeurs disponibles`}
+            </div>
+          </div>
+        </div>
+
+        <div style={{ flex: 1, minHeight: 18 }} />
         <Button variant="accent" size="xl" onClick={onBook} rightIcon="arrow-right">{t.bookCta}</Button>
       </div>
     </div>
@@ -475,11 +516,11 @@ function DetailsStep({ t, barber, lang, service, timeKey, dayIdx, name, phone, s
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 18 }}>
         <Field label={t.fullName} icon="user">
           <input value={name} onChange={e => setName(e.target.value)} placeholder={t.namePlaceholder}
-                 style={inputStyle(t)} />
+                 autoComplete="name" autoCapitalize="words" style={inputStyle(t)} />
         </Field>
         <Field label={t.phone} icon="phone" prefix="+213">
           <input value={phone} onChange={e => setPhone(e.target.value)} placeholder={t.phonePlaceholder}
-                 inputMode="tel" style={{ ...inputStyle(t), paddingInlineStart: 80 }} />
+                 inputMode="tel" autoComplete="tel" style={{ ...inputStyle(t), paddingInlineStart: 80 }} />
         </Field>
         <div style={{ fontSize: 12, color: TOKENS.muted, lineHeight: 1.5,
                       display: 'flex', alignItems: 'flex-start', gap: 8 }}>

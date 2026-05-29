@@ -27,13 +27,18 @@
   button, [role="button"], a, input, textarea, select { touch-action: manipulation; }
   :focus-visible { outline: 2px solid #E0A85B; outline-offset: 2px; border-radius: 4px; }
   #root { height: 100%; width: 100%; max-width: 520px; margin: 0 auto; overflow: hidden; }
+  .fc-boot { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+  .fc-boot-logo { width: 72px; height: 72px; border-radius: 20px; background: linear-gradient(145deg,#E0A85B,#C8893B); display: flex; align-items: center; justify-content: center; box-shadow: 0 12px 30px -8px rgba(224,168,91,0.4); }
+  .fc-boot-name { font-size: 18px; font-weight: 800; letter-spacing: -0.01em; color: #FAF6EF; }
+  .fc-boot-spin { width: 26px; height: 26px; border-radius: 50%; border: 3px solid rgba(224,168,91,0.25); border-top-color: #E0A85B; animation: fc-spin .8s linear infinite; }
+  @keyframes fc-spin { to { transform: rotate(360deg); } }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
   }
 </style>
 </head>
 <body>
-  <div id="root"></div>
+  <div id="root"><div class="fc-boot" aria-hidden="true"><div class="fc-boot-logo"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="#1C1813" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg></div><div class="fc-boot-name">Fade City</div><div class="fc-boot-spin"></div></div></div>
 
   <script src="vendor/react.production.min.js"></script>
   <script src="vendor/react-dom.production.min.js"></script>
