@@ -461,7 +461,7 @@ function FastMore({ L, t, lang, setLang, barber }) {
 
 function FastToast({ msg }) {
   return (
-    <div style={{ position: 'absolute', top: 70, left: '50%', transform: 'translateX(-50%)', zIndex: 200,
+    <div role="status" aria-live="polite" style={{ position: 'absolute', top: 70, left: '50%', transform: 'translateX(-50%)', zIndex: 200,
                   background: TOKENS.ink, color: TOKENS.paper, padding: '12px 18px', borderRadius: 999,
                   fontSize: 15, fontWeight: 700, boxShadow: '0 16px 36px -10px rgba(0,0,0,0.5)',
                   whiteSpace: 'nowrap', animation: 'fast-fade 200ms ease-out' }}>{msg}</div>

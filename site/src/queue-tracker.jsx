@@ -70,7 +70,7 @@ function QueueTracker({ lang = 'fr', position = 'three', embeddedBarber, service
                       justifyContent: 'center', textAlign: 'center', padding: 28, gap: 14 }}>
           <div style={{ width: 56, height: 56, borderRadius: '50%', background: TOKENS.surfaceAlt,
                         color: TOKENS.muted, display: 'flex', alignItems: 'center',
-                        justifyContent: 'center', fontSize: 26 }}>✕</div>
+                        justifyContent: 'center' }}><Icon name="x" size={26} stroke={2.4} /></div>
           <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600 }}>{t.bookingCancelled}</h1>
           <div style={{ fontSize: 14, color: TOKENS.muted, lineHeight: 1.5 }}>{t.bookingCancelledSub}</div>
           {onRestart && <Button variant="accent" size="md" onClick={onRestart}>{t.bookAgain}</Button>}
@@ -151,7 +151,7 @@ function QueueTracker({ lang = 'fr', position = 'three', embeddedBarber, service
             </div>
             <button aria-label={t.dir === 'rtl' ? 'الاتصال بالحلاق' : 'Appeler le coiffeur'}
                     onClick={() => { window.location.href = 'tel:+213555010101'; }}
-                    style={{ width: 36, height: 36, borderRadius: 10, border: `1px solid ${TOKENS.border}`,
+                    style={{ width: 44, height: 44, borderRadius: 12, border: `1px solid ${TOKENS.border}`,
                              background: TOKENS.surface, cursor: 'pointer', display: 'flex',
                              alignItems: 'center', justifyContent: 'center', color: TOKENS.ink }}>
               <Icon name="phone" size={15} />

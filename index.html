@@ -36,6 +36,8 @@
   input::placeholder { color: #4B5563; }
   input:focus { border-color: #C8893B !important; }
   ::selection { background: #C8893B55; }
+  button, [role="button"], a, input, textarea, select { touch-action: manipulation; }
+  :focus-visible { outline: 2px solid #E0A85B; outline-offset: 2px; border-radius: 4px; }
 
   /* Ambient pulsing light circles in the background — like a heartbeat */
   .ambient-blur {
