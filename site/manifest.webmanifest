@@ -1,0 +1,17 @@
+{
+  "name": "Fade City — Réserver",
+  "short_name": "Fade City",
+  "description": "Réservez votre tour chez le barbier et suivez la file en direct.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#100D0A",
+  "theme_color": "#C8893B",
+  "lang": "fr",
+  "dir": "auto",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

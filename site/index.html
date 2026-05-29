@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Fade City — Réserver</title>
+
+<!-- PWA: customer booking site -->
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#C8893B" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Fade City" />
+<meta name="mobile-web-app-capable" content="yes" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #100D0A; }
+  body { font-family: "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+         color: #FAF6EF; -webkit-font-smoothing: antialiased; }
+  [dir="rtl"] { font-feature-settings: "kern" 1, "liga" 1; }
+  *, *::before, *::after { box-sizing: border-box; }
+  button, input, textarea { font-family: inherit; }
+  input::placeholder { color: #6B5E4A; }
+  #root { height: 100%; width: 100%; max-width: 480px; margin: 0 auto; overflow: hidden; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+  }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="vendor/react.production.min.js"></script>
+  <script src="vendor/react-dom.production.min.js"></script>
+  <script src="vendor/babel.min.js"></script>
+
+  <script type="text/babel" src="src/data.jsx"></script>
+  <script type="text/babel" src="src/ui.jsx"></script>
+  <script type="text/babel" src="src/customer-flow.jsx"></script>
+  <script type="text/babel" src="src/queue-tracker.jsx"></script>
+
+  <script type="text/babel">
+    function BookingRoot() {
+      const [lang, setLang] = React.useState('fr');
+      React.useEffect(() => {
+        document.documentElement.lang = lang;
+        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      }, [lang]);
+      return (
+        <div style={{ position: 'relative', height: '100%' }}>
+          <button onClick={() => setLang(l => (l === 'fr' ? 'ar' : 'fr'))} aria-label="Langue / اللغة"
+                  style={{ position: 'absolute', top: 12, insetInlineStart: 12, zIndex: 50,
+                           height: 32, padding: '0 14px', borderRadius: 999, cursor: 'pointer', fontFamily: 'inherit',
+                           background: 'rgba(255,248,240,0.14)', color: '#FAF6EF', border: '1px solid rgba(255,240,220,0.20)',
+                           backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', fontSize: 13, fontWeight: 700 }}>
+            {lang === 'fr' ? 'AR' : 'FR'}
+          </button>
+          <CustomerFlow lang={lang} density="busy" barberOverrides={{}}
+                        onConfirm={() => {}} onCancelBooking={() => {}} />
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<BookingRoot />);
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+    }
+  </script>
+</body>
+</html>
