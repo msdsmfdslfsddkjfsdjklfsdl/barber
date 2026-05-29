@@ -2,32 +2,32 @@
 // All globals are hung off `window` so other Babel <script> tags can read them.
 
 const TOKENS = {
-  // Dark Minimal — slate background, calm whitespace, green primary
-  ink:        '#F9FAFB',     // primary text
-  inkSoft:    '#F3F4F6',
-  paper:      '#0A0E17',     // page background (deeper — more depth + contrast)
-  surface:    '#161F2C',     // cards (sit above the darker page)
-  surfaceAlt: '#1E2A39',     // featured / inset
-  border:     '#2F3A47',
-  borderSoft: '#252F3A',
-  muted:      '#9CA3AF',     // secondary text
-  faint:      '#4B5563',
-  accent:     '#16A34A',     // primary button green
-  accentDeep: '#11833A',
-  accentSoft: '#0E2A1A',
-  green:      '#22C55E',     // success
-  greenDeep:  '#16A34A',
-  greenSoft:  '#0E3022',
-  amber:      '#F59E0B',     // warning
+  // Charcoal + Brass — warm charcoal background, brass/gold accent (classic barbershop)
+  ink:        '#FAF6EF',     // primary text (warm white)
+  inkSoft:    '#EFE8DC',
+  paper:      '#100D0A',     // page background (warm charcoal)
+  surface:    '#1C1813',     // cards
+  surfaceAlt: '#251F17',     // featured / inset
+  border:     '#352B1F',
+  borderSoft: '#2A2117',
+  muted:      '#A89A88',     // secondary text (warm gray)
+  faint:      '#6B5E4A',
+  accent:     '#C8893B',     // primary — brass
+  accentDeep: '#A66E2A',
+  accentSoft: '#2A2113',
+  green:      '#E0A85B',     // success → warm brass tone (kept cohesive)
+  greenDeep:  '#C8893B',
+  greenSoft:  '#2A2113',
+  amber:      '#F2A93B',     // warning / walk-in
   amberSoft:  '#3A2A0E',
-  red:        '#EF4444',     // error
-  redSoft:    '#3A1A1C',
-  accentBright: '#22C55E',   // brighter green for gradients + glow
+  red:        '#EF5350',     // error / cancel
+  redSoft:    '#3A1A1A',
+  accentBright: '#E0A85B',   // brighter brass for gradients + glow
   // Elevation + glow — applied via boxShadow
-  shadowSm:   '0 6px 18px -8px rgba(0,0,0,0.55)',
-  shadowMd:   '0 18px 44px -16px rgba(0,0,0,0.60)',
-  shadowLg:   '0 30px 70px -22px rgba(0,0,0,0.66)',
-  glow:       '0 10px 28px -6px rgba(34,197,94,0.50)',
+  shadowSm:   '0 6px 18px -8px rgba(0,0,0,0.6)',
+  shadowMd:   '0 18px 44px -16px rgba(0,0,0,0.64)',
+  shadowLg:   '0 30px 70px -22px rgba(0,0,0,0.7)',
+  glow:       '0 10px 28px -6px rgba(224,168,91,0.45)',
 };
 
 const I18N = {
