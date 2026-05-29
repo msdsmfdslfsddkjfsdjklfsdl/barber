@@ -315,8 +315,12 @@ function PickTime({ t, lang, barber, serviceIds, onToggleService, dayIdx, onDay,
   const soonest = available[0];
 
   const [showAll, setShowAll] = React.useState(false);
-  const visibleSlots = showAll ? available.slice(1) : available.slice(1, 7);
-  const hiddenCount = available.length - 1 - visibleSlots.length;
+  // The hero "soonest" card only renders on the Today tab (it covers available[0]
+  // there). On the Tomorrow tab there's no hero, so start the grid at 0 — otherwise
+  // the earliest tomorrow slot would never be selectable.
+  const startIdx = dayIdx === 0 ? 1 : 0;
+  const visibleSlots = showAll ? available.slice(startIdx) : available.slice(startIdx, startIdx + 6);
+  const hiddenCount = available.length - startIdx - visibleSlots.length;
 
   return (
     <FlowShell t={t} onBack={onBack} stepIndex={1}>

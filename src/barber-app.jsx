@@ -513,6 +513,22 @@ function HomeTab({ t, lang, barber, barberId, now, doneRevenue, clientsDone, tot
         <Icon name="plus" size={16} stroke={2.4} />
       </button>
 
+      {/* Pause the queue — opens the break sheet (15/30/60 min or offline).
+          Hidden while already paused; the PauseBanner above handles resuming. */}
+      {!pauseMode && (
+        <button onClick={onPauseToggle} style={{
+          appearance: 'none', cursor: 'pointer', fontFamily: 'inherit',
+          width: '100%', height: 52, borderRadius: 16, marginTop: 12,
+          background: TOKENS.surface, color: TOKENS.ink,
+          borderWidth: 1, borderStyle: 'solid', borderColor: TOKENS.border,
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          fontSize: 14, fontWeight: 600,
+        }}>
+          <Icon name="pause" size={16} />
+          <span>{t.pause}</span>
+        </button>
+      )}
+
       {queueIsEmpty && !inSession && (
         <EmptyState t={t} doneRevenue={doneRevenue} doneCount={clientsDone} />
       )}

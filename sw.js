@@ -1,6 +1,6 @@
 // Barber 16 service worker — installable PWA + offline shell.
-// Cache-first for the local app files; CDN deps (React/Babel from unpkg) are
-// cached opaquely on first online load so the app keeps working offline.
+// Cache-first for all local app files, including the vendored React/Babel in
+// vendor/, so the app loads instantly and works fully offline.
 const CACHE = 'barber-16-v4';
 const ASSETS = [
   './',
