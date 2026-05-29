@@ -69,7 +69,7 @@ function App() {
       <DesignCanvas background={TOKENS.paper}>
         {/* ── Section 1: Client web booking flow ───────────────────────── */}
         <DCSection id="booking" title="Customer · Web booking flow"
-                   subtitle="Mobile webview · barberdz.com/fade-city · 3 steps from open to confirmation.">
+                   subtitle="Mobile webview · barberdz.com/barber-16 · 3 steps from open to confirmation.">
           <DCArtboard id="flow" label="Booking flow · interactive" width={380} height={800}>
             <PhoneFrame>
               <CustomerFlow lang={t.lang} density={t.density}

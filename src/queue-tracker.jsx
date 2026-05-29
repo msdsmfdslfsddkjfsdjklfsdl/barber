@@ -58,15 +58,16 @@ function QueueTracker({ lang = 'fr', position = 'three', embeddedBarber, service
   }, [sim.kind]);
 
   const surface = {
-    fontFamily: t.fontFamily, direction: t.dir, background: TOKENS.surface,
+    fontFamily: t.fontFamily, direction: t.dir, background: TOKENS.paper,
     color: TOKENS.ink, height: '100%', display: 'flex', flexDirection: 'column',
-    position: 'relative',
+    position: 'relative', overflow: 'hidden',
   };
 
   if (cancelled) {
     return (
       <div style={surface}>
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
+        <Aurora />
+        <div style={{ position: 'relative', zIndex: 1, flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
                       justifyContent: 'center', textAlign: 'center', padding: 28, gap: 14 }}>
           <div style={{ width: 56, height: 56, borderRadius: '50%', background: TOKENS.surfaceAlt,
                         color: TOKENS.muted, display: 'flex', alignItems: 'center',
@@ -81,12 +82,15 @@ function QueueTracker({ lang = 'fr', position = 'three', embeddedBarber, service
 
   return (
     <div style={surface}>
+      <Aurora />
+      <div style={{ position: 'relative', zIndex: 1, flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
       {flash === 'next' && (
-        <div style={{
+        <div className="lg-pop" style={{
           position: 'absolute', top: 14, insetInline: 14, zIndex: 60,
-          background: TOKENS.accent, color: '#fff', borderRadius: 14,
+          background: TOKENS.accent, color: '#fff', borderRadius: 18,
           padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10,
-          boxShadow: '0 14px 34px -10px rgba(0,0,0,0.45)',
+          backdropFilter: TOKENS.blur, WebkitBackdropFilter: TOKENS.blur,
+          boxShadow: 'inset 0 1px 0 rgba(255,246,232,0.10), 0 14px 34px -10px rgba(0,0,0,0.45)',
           animation: 'fc-qt-flash 340ms cubic-bezier(0.2,0.8,0.2,1)',
         }}>
           <Icon name="bolt" size={18} />
@@ -109,7 +113,7 @@ function QueueTracker({ lang = 'fr', position = 'three', embeddedBarber, service
           </button>
         </div>
       )}
-      <div style={{ flex: 1, overflow: 'auto', padding: '12px 22px 24px' }}>
+      <div className="lg-rise" style={{ flex: 1, overflow: 'auto', padding: '12px 22px 24px' }}>
         {/* Top bar */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22 }}>
           <div style={{ fontSize: 12, color: TOKENS.muted, fontWeight: 500 }}>
@@ -122,7 +126,7 @@ function QueueTracker({ lang = 'fr', position = 'three', embeddedBarber, service
                         fontSize: 11, fontWeight: 500 }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%',
                            background: sim.kind === 'done' ? TOKENS.muted : TOKENS.accent,
-                           animation: sim.kind === 'done' ? '' : 'pulse 1.8s ease-in-out infinite',
+                           animation: sim.kind === 'done' ? '' : 'lg-pulse 1.8s ease-in-out infinite',
                            boxShadow: sim.kind === 'done' ? 'none' :
                              `0 0 0 0 ${TOKENS.accent}40` }} />
             {sim.kind === 'done' ? t.doneStateTitle : t.livePill}
@@ -130,16 +134,26 @@ function QueueTracker({ lang = 'fr', position = 'three', embeddedBarber, service
         </div>
 
         {/* hero — position number + label */}
-        {sim.kind === 'wait' && <WaitHero t={t} before={sim.before} eta={sim.eta} />}
-        {sim.kind === 'next' && <NextHero t={t} eta={sim.eta} />}
-        {sim.kind === 'done' && <DoneHero t={t} />}
+        <div className="lg-pop" style={{
+          background: TOKENS.surface, border: `1px solid ${TOKENS.glassEdge}`,
+          borderRadius: 24, padding: 20,
+          backdropFilter: TOKENS.blur, WebkitBackdropFilter: TOKENS.blur,
+          boxShadow: 'inset 0 1px 0 rgba(255,246,232,0.12), ' + TOKENS.shadowMd,
+        }}>
+          {sim.kind === 'wait' && <WaitHero t={t} before={sim.before} eta={sim.eta} />}
+          {sim.kind === 'next' && <NextHero t={t} eta={sim.eta} />}
+          {sim.kind === 'done' && <DoneHero t={t} />}
+        </div>
 
         {/* Your barber card */}
         <div style={{ marginTop: 24, marginBottom: 16 }}>
           <div style={{ fontFamily: "'Geist Mono', ui-monospace, monospace", fontSize: 10,
                         letterSpacing: '0.1em', textTransform: 'uppercase',
                         color: TOKENS.muted, marginBottom: 8 }}>{t.barberStatus}</div>
-          <div style={{ border: `1px solid ${TOKENS.border}`, borderRadius: 14,
+          <div style={{ border: `1px solid ${TOKENS.border}`, borderRadius: 18,
+                        background: TOKENS.surface,
+                        backdropFilter: TOKENS.blur, WebkitBackdropFilter: TOKENS.blur,
+                        boxShadow: 'inset 0 1px 0 rgba(255,246,232,0.10), ' + TOKENS.shadowSm,
                         padding: 14, display: 'flex', alignItems: 'center', gap: 12 }}>
             <Avatar initials={barber.initials} tint={barber.tint} text={barber.text} size={44} />
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -187,6 +201,7 @@ function QueueTracker({ lang = 'fr', position = 'three', embeddedBarber, service
             <Button variant="ghost" size="md" onClick={onRestart}>{t.bookAgain}</Button>
           )}
         </div>
+      </div>
       </div>
 
       <style>{`
@@ -273,9 +288,11 @@ function Pill({ icon, label, value, accent }) {
   return (
     <div style={{
       display: 'inline-flex', alignItems: 'center', gap: 8,
-      padding: '8px 12px', borderRadius: 10,
+      padding: '8px 12px', borderRadius: 18,
       border: `1px solid ${accent ? TOKENS.accent : TOKENS.border}`,
       background: accent ? TOKENS.accentSoft : TOKENS.surface,
+      backdropFilter: TOKENS.blur, WebkitBackdropFilter: TOKENS.blur,
+      boxShadow: 'inset 0 1px 0 rgba(255,246,232,0.10), ' + TOKENS.shadowSm,
       color: accent ? TOKENS.accentDeep : TOKENS.ink,
     }}>
       <Icon name={icon} size={14} />
@@ -305,7 +322,10 @@ function QueueList({ t, before }) {
                     color: TOKENS.muted, marginBottom: 8 }}>
         {t.queueTitle}
       </div>
-      <div style={{ border: `1px solid ${TOKENS.border}`, borderRadius: 12, overflow: 'hidden' }}>
+      <div className="lg-stagger" style={{ border: `1px solid ${TOKENS.border}`, borderRadius: 18, overflow: 'hidden',
+                    background: TOKENS.surface,
+                    backdropFilter: TOKENS.blur, WebkitBackdropFilter: TOKENS.blur,
+                    boxShadow: 'inset 0 1px 0 rgba(255,246,232,0.10), ' + TOKENS.shadowSm }}>
         {rows.map((r, i) => {
           const isYou = r.kind === 'you';
           return (

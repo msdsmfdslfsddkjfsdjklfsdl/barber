@@ -1,4 +1,4 @@
-# ✂️ Fade City — Booking & Queue
+# ✂️ Barber 16 — Booking & Queue
 
 A mobile-first **barbershop booking and live-queue** prototype, built for an
 Algerian barbershop ("salon de coiffure"). It covers the whole loop in one
@@ -80,7 +80,7 @@ pauses or resumes accepting new clients.
 
 The app is presented as three phone artboards on a design canvas:
 
-1. **Customer · Web booking flow** — a mobile webview at `barberdz.com/fade-city`.
+1. **Customer · Web booking flow** — a mobile webview at `barberdz.com/barber-16`.
    Five steps from open to confirmation:
    `Salon landing → Pick barber → Pick time + services → Your details → Confirmed`.
 

@@ -2,32 +2,42 @@
 // All globals are hung off `window` so other Babel <script> tags can read them.
 
 const TOKENS = {
-  // Charcoal + Brass — warm charcoal background, brass/gold accent (classic barbershop)
-  ink:        '#FAF6EF',     // primary text (warm white)
-  inkSoft:    '#EFE8DC',
-  paper:      '#100D0A',     // page background (warm charcoal)
-  surface:    '#1C1813',     // cards
-  surfaceAlt: '#251F17',     // featured / inset
-  border:     '#352B1F',
-  borderSoft: '#2A2117',
-  muted:      '#A89A88',     // secondary text (warm gray)
-  faint:      '#6B5E4A',
-  accent:     '#C8893B',     // primary — brass
-  accentDeep: '#A66E2A',
-  accentSoft: '#2A2113',
-  green:      '#E0A85B',     // success → warm brass tone (kept cohesive)
+  // ── iOS-26 "Liquid Glass" · Brass ──────────────────────────────────────
+  // Deep warm-charcoal base with translucent brass-tinted glass on top. Cards
+  // are semi-transparent (rgba) so the animated aurora reads through them, and
+  // floating chrome (headers, sheets, buttons) adds backdrop-blur for true glass.
+  ink:        '#FBF7F0',                    // primary text (warm white)
+  inkSoft:    'rgba(251, 247, 240, 0.72)',  // secondary text
+  paper:      '#0B0907',                    // deep base (aurora layer sits above)
+  surface:    'rgba(40, 33, 24, 0.55)',     // glass card
+  surfaceAlt: 'rgba(60, 50, 35, 0.52)',     // featured / inset glass
+  border:     'rgba(255, 239, 216, 0.12)',  // glass edge — light hairline
+  borderSoft: 'rgba(255, 239, 216, 0.06)',
+  muted:      'rgba(244, 234, 219, 0.56)',  // secondary text (vibrant over glass)
+  faint:      'rgba(244, 234, 219, 0.30)',
+  accent:     '#E0A85B',                    // primary — luminous brass (HEX: alpha-suffixed elsewhere)
+  accentDeep: '#C8893B',
+  accentSoft: 'rgba(224, 168, 91, 0.16)',
+  green:      '#E6B36A',                    // success → warm brass (kept cohesive)
   greenDeep:  '#C8893B',
-  greenSoft:  '#2A2113',
-  amber:      '#F2A93B',     // warning / walk-in
-  amberSoft:  '#3A2A0E',
-  red:        '#EF5350',     // error / cancel
-  redSoft:    '#3A1A1A',
-  accentBright: '#E0A85B',   // brighter brass for gradients + glow
+  greenSoft:  'rgba(224, 168, 91, 0.16)',
+  amber:      '#F2A93B',                    // warning / walk-in
+  amberSoft:  'rgba(242, 169, 59, 0.15)',
+  red:        '#FF6B6B',                    // error / cancel (HEX: alpha-suffixed elsewhere)
+  redSoft:    'rgba(255, 107, 107, 0.14)',
+  accentBright: '#F2C684',                  // brightest brass for gradients + specular
+  // Glass system ──────────────────────────────────────────────────────────
+  glass:       'rgba(40, 33, 24, 0.55)',    // standard glass fill
+  glassStrong: 'rgba(22, 18, 13, 0.72)',    // opaque-ish chrome (headers, tab bar)
+  glassHi:     'rgba(255, 246, 232, 0.10)', // top specular highlight
+  glassEdge:   'rgba(255, 239, 216, 0.16)', // brighter glass rim
+  blur:        'saturate(180%) blur(22px)', // backdrop-filter value for chrome
+  blurStrong:  'saturate(180%) blur(34px)',
   // Elevation + glow — applied via boxShadow
-  shadowSm:   '0 6px 18px -8px rgba(0,0,0,0.6)',
-  shadowMd:   '0 18px 44px -16px rgba(0,0,0,0.64)',
-  shadowLg:   '0 30px 70px -22px rgba(0,0,0,0.7)',
-  glow:       '0 10px 28px -6px rgba(224,168,91,0.45)',
+  shadowSm:   '0 8px 24px -12px rgba(0,0,0,0.7)',
+  shadowMd:   '0 22px 54px -20px rgba(0,0,0,0.72)',
+  shadowLg:   '0 40px 100px -30px rgba(0,0,0,0.8)',
+  glow:       '0 14px 40px -10px rgba(224,168,91,0.5)',
 };
 
 const I18N = {
@@ -36,9 +46,9 @@ const I18N = {
     locale: 'fr-DZ',
     fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
     // url pill
-    urlPill: 'barberdz.com/fade-city',
+    urlPill: 'barberdz.com/barber-16',
     // salon landing
-    salonName: 'Fade City',
+    salonName: 'Barber 16',
     salonTag: 'Coiffeur · Alger Centre',
     salonAddr: '12 Rue Didouche Mourad · Alger',
     salonAbout: 'Maison de coiffure indépendante. Sans rendez-vous depuis 2019. Réservez votre tour, on vous prévient quand c\'est bientôt.',
@@ -124,7 +134,7 @@ const I18N = {
     soonAr: 'قريب',
     nextSubtitle: 'Restez à proximité — on vous appelle d\'une minute à l\'autre.',
     doneStateTitle: 'Session terminée',
-    doneStateSub: 'Merci pour votre visite. À bientôt à Fade City.',
+    doneStateSub: 'Merci pour votre visite. À bientôt à Barber 16.',
     rateVisit: 'Évaluer la visite',
     cancelBooking: 'Annuler la réservation',
     livePill: 'En direct',
@@ -266,8 +276,8 @@ const I18N = {
     dir: 'rtl',
     locale: 'ar-DZ',
     fontFamily: '"Cairo", "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
-    urlPill: 'barberdz.com/fade-city',
-    salonName: 'فايد سيتي',
+    urlPill: 'barberdz.com/barber-16',
+    salonName: 'Barber 16',
     salonTag: 'حلاق · وسط الجزائر',
     salonAddr: '12 شارع ديدوش مراد · الجزائر',
     salonAbout: 'صالون حلاقة مستقل. منذ 2019 بدون موعد مسبق. احجز دورك ونحن نعلمك حين يقترب.',
@@ -344,7 +354,7 @@ const I18N = {
     soonAr: 'قريب',
     nextSubtitle: 'ابقَ قريباً — سنناديك في أي لحظة.',
     doneStateTitle: 'انتهت الجلسة',
-    doneStateSub: 'شكراً لزيارتك. إلى اللقاء في فايد سيتي.',
+    doneStateSub: 'شكراً لزيارتك. إلى اللقاء في Barber 16.',
     rateVisit: 'قيّم الزيارة',
     cancelBooking: 'إلغاء الحجز',
     livePill: 'مباشر',

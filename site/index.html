@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Fade City — Réserver</title>
+<title>Barber 16 — Réserver</title>
 
 <!-- PWA: customer booking site -->
 <link rel="manifest" href="manifest.webmanifest" />
@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" href="icon-192.png" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="Fade City" />
+<meta name="apple-mobile-web-app-title" content="Barber 16" />
 <meta name="mobile-web-app-capable" content="yes" />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -33,13 +33,44 @@
   .fc-boot-name { font-size: 18px; font-weight: 800; letter-spacing: -0.01em; color: #FAF6EF; }
   .fc-boot-spin { width: 26px; height: 26px; border-radius: 50%; border: 3px solid rgba(224,168,91,0.25); border-top-color: #E0A85B; animation: fc-spin .8s linear infinite; }
   @keyframes fc-spin { to { transform: rotate(360deg); } }
+  /* ── iOS-26 Liquid Glass · motion + materials ──────────────────────── */
+  button { -webkit-tap-highlight-color: transparent;
+           transition: transform 180ms cubic-bezier(.34,1.56,.64,1), box-shadow 220ms ease, filter 200ms ease; }
+  button:active:not(:disabled) { transform: scale(0.955); }
+  .glass { background: rgba(40,33,24,0.55);
+           -webkit-backdrop-filter: saturate(180%) blur(22px); backdrop-filter: saturate(180%) blur(22px);
+           border: 1px solid rgba(255,239,216,0.12);
+           box-shadow: inset 0 1px 0 rgba(255,246,232,0.10), 0 22px 54px -20px rgba(0,0,0,0.72); }
+  .glass-strong { -webkit-backdrop-filter: saturate(180%) blur(28px); backdrop-filter: saturate(180%) blur(28px); }
+  @keyframes lg-rise    { from { opacity:0; transform: translateY(14px) scale(.985); } to { opacity:1; transform:none; } }
+  @keyframes lg-pop     { 0% { opacity:0; transform: scale(.9); } 60% { transform: scale(1.03); } 100% { opacity:1; transform: scale(1); } }
+  @keyframes lg-sheet   { from { transform: translateY(101%); } to { transform: translateY(0); } }
+  @keyframes lg-fade    { from { opacity:0; } to { opacity:1; } }
+  @keyframes lg-blur-in { from { opacity:0; filter: blur(10px); } to { opacity:1; filter: blur(0); } }
+  @keyframes lg-float   { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+  @keyframes lg-pulse   { 0%,100% { opacity:.5; transform: scale(1); } 50% { opacity:1; transform: scale(1.15); } }
+  @keyframes lg-shimmer { 0% { background-position: -150% 0; } 100% { background-position: 250% 0; } }
+  @keyframes lg-spin    { to { transform: rotate(360deg); } }
+  @keyframes lg-drift-1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(40px,46px) scale(1.1); } }
+  @keyframes lg-drift-2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-52px,-36px) scale(1.12); } }
+  @keyframes lg-drift-3 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-30px,40px) scale(1.08); } }
+  .lg-rise { animation: lg-rise 520ms cubic-bezier(.22,.9,.3,1) both; }
+  .lg-pop  { animation: lg-pop 440ms cubic-bezier(.34,1.56,.64,1) both; }
+  .lg-blur-in { animation: lg-blur-in 600ms ease both; }
+  .lg-stagger > * { animation: lg-rise 540ms cubic-bezier(.22,.9,.3,1) both; }
+  .lg-stagger > *:nth-child(1){animation-delay:.04s}.lg-stagger > *:nth-child(2){animation-delay:.09s}.lg-stagger > *:nth-child(3){animation-delay:.14s}.lg-stagger > *:nth-child(4){animation-delay:.19s}.lg-stagger > *:nth-child(5){animation-delay:.24s}.lg-stagger > *:nth-child(6){animation-delay:.29s}.lg-stagger > *:nth-child(7){animation-delay:.34s}.lg-stagger > *:nth-child(8){animation-delay:.39s}.lg-stagger > *:nth-child(n+9){animation-delay:.44s}
+  .lg-sheen { position: relative; overflow: hidden; }
+  .lg-sheen::after { content:''; position:absolute; inset:0; pointer-events:none; border-radius: inherit;
+    background: linear-gradient(105deg, transparent 32%, rgba(255,255,255,0.16) 48%, transparent 64%);
+    background-size: 250% 100%; animation: lg-shimmer 5.5s ease-in-out infinite; }
+
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
   }
 </style>
 </head>
 <body>
-  <div id="root"><div class="fc-boot" aria-hidden="true"><div class="fc-boot-logo"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="#1C1813" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg></div><div class="fc-boot-name">Fade City</div><div class="fc-boot-spin"></div></div></div>
+  <div id="root"><div class="fc-boot" aria-hidden="true"><div class="fc-boot-logo"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="#1C1813" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg></div><div class="fc-boot-name">Barber 16</div><div class="fc-boot-spin"></div></div></div>
 
   <script src="vendor/react.production.min.js"></script>
   <script src="vendor/react-dom.production.min.js"></script>

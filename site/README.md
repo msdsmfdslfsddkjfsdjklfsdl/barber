@@ -1,4 +1,4 @@
-# Fade City — Booking site (standalone)
+# Barber 16 — Booking site (standalone)
 
 The customer-facing **booking site**: choose a barber, pick services (with
 add-ons), pick a time, confirm — then watch your place in the **live queue**.

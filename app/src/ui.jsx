@@ -69,6 +69,7 @@ function Avatar({ initials, tint, text, size = 44, photo }) {
       <img src={photo} alt={initials || 'avatar'} style={{
         width: size, height: size, borderRadius: '50%', objectFit: 'cover',
         flexShrink: 0, background: tint,
+        boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.14), 0 6px 16px -6px rgba(0,0,0,0.55)',
       }} />
     );
   }
@@ -78,6 +79,7 @@ function Avatar({ initials, tint, text, size = 44, photo }) {
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 600, fontSize: size * 0.4,
       letterSpacing: '-0.01em', flexShrink: 0,
+      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.22), inset 0 0 0 1px rgba(255,255,255,0.10), 0 6px 16px -6px rgba(0,0,0,0.5)',
     }}>{initials}</div>
   );
 }
@@ -94,38 +96,73 @@ function StatusDot({ color, label, mono = false }) {
   );
 }
 
-// Primary CTA button
+// Primary CTA — iOS-26 liquid-glass pill: specular top highlight, accent glow,
+// and a spring press (the global `button:active{scale}` rule handles the press).
 function Button({ children, onClick, variant = 'primary', size = 'lg', disabled, style, leftIcon, rightIcon }) {
   const base = {
+    position: 'relative', overflow: 'hidden', isolation: 'isolate',
     appearance: 'none', border: 'none', cursor: disabled ? 'not-allowed' : 'pointer',
-    fontFamily: 'inherit', fontWeight: 500, letterSpacing: '-0.005em',
-    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-    transition: 'transform 80ms ease, background 120ms ease, border-color 120ms ease',
-    opacity: disabled ? 0.4 : 1,
+    fontFamily: 'inherit', fontWeight: 600, letterSpacing: '-0.01em',
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 9,
+    WebkitTapHighlightColor: 'transparent',
+    opacity: disabled ? 0.45 : 1,
   };
   const sizes = {
-    xl: { height: 68, padding: '0 24px', fontSize: 18, borderRadius: 16, width: '100%' },
-    lg: { height: 60, padding: '0 22px', fontSize: 17, borderRadius: 14, width: '100%' },
-    md: { height: 48, padding: '0 18px', fontSize: 15, borderRadius: 12 },
-    sm: { height: 36, padding: '0 14px', fontSize: 14, borderRadius: 10 },
+    xl: { height: 64, padding: '0 26px', fontSize: 18, borderRadius: 24, width: '100%' },
+    lg: { height: 58, padding: '0 22px', fontSize: 17, borderRadius: 21, width: '100%' },
+    md: { height: 48, padding: '0 20px', fontSize: 15, borderRadius: 17 },
+    sm: { height: 38, padding: '0 16px', fontSize: 14, borderRadius: 13 },
   };
   const variants = {
-    primary:   { background: TOKENS.ink,     color: TOKENS.paper, fontWeight: 600, boxShadow: TOKENS.shadowSm },
-    accent:    { background: `linear-gradient(180deg, ${TOKENS.accentBright}, ${TOKENS.accent})`, color: '#06210F', fontWeight: 700, boxShadow: TOKENS.glow },
-    secondary: { background: TOKENS.surface, color: TOKENS.ink, border: `1px solid ${TOKENS.border}`, fontWeight: 500 },
-    ghost:     { background: 'transparent',  color: TOKENS.ink, fontWeight: 500 },
-    danger:    { background: TOKENS.redSoft, color: TOKENS.red, fontWeight: 500 },
+    primary:   { background: 'linear-gradient(180deg, #FFFDF9, #EEE6D6)', color: '#241A0C', fontWeight: 700,
+                 boxShadow: '0 12px 30px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.9)' },
+    accent:    { background: `linear-gradient(180deg, ${TOKENS.accentBright}, ${TOKENS.accentDeep})`, color: '#2A1B06', fontWeight: 800,
+                 boxShadow: `${TOKENS.glow}, inset 0 1px 0 rgba(255,255,255,0.5)` },
+    secondary: { background: TOKENS.glass, color: TOKENS.ink, border: `1px solid ${TOKENS.glassEdge}`,
+                 backdropFilter: TOKENS.blur, WebkitBackdropFilter: TOKENS.blur,
+                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.10)' },
+    ghost:     { background: 'transparent',  color: TOKENS.ink },
+    danger:    { background: TOKENS.redSoft, color: TOKENS.red, border: '1px solid rgba(255,107,107,0.28)',
+                 backdropFilter: TOKENS.blur, WebkitBackdropFilter: TOKENS.blur },
   };
+  const glossy = variant === 'accent' || variant === 'primary';
+  const z = { position: 'relative', zIndex: 1 };
   return (
-    <button onClick={disabled ? undefined : onClick}
-      style={{ ...base, ...sizes[size], ...variants[variant], ...style }}
-      onMouseDown={e => !disabled && (e.currentTarget.style.transform = 'translateY(1px)')}
-      onMouseUp={e => (e.currentTarget.style.transform = '')}
-      onMouseLeave={e => (e.currentTarget.style.transform = '')}>
-      {leftIcon && <Icon name={leftIcon} size={16} />}
-      {children}
-      {rightIcon && <Icon name={rightIcon} size={16} />}
+    <button onClick={disabled ? undefined : onClick} disabled={disabled}
+      style={{ ...base, ...sizes[size], ...variants[variant], ...style }}>
+      {glossy && <span aria-hidden="true" style={{
+        position: 'absolute', insetInline: 0, top: 0, height: '52%', pointerEvents: 'none', zIndex: 0,
+        background: 'linear-gradient(180deg, rgba(255,255,255,0.30), rgba(255,255,255,0))',
+      }} />}
+      {leftIcon && <Icon name={leftIcon} size={16} style={z} />}
+      <span style={{ ...z, display: 'inline-flex', alignItems: 'center', gap: 9 }}>{children}</span>
+      {rightIcon && <Icon name={rightIcon} size={16} style={z} />}
     </button>
+  );
+}
+
+// Animated "aurora" — soft drifting brass light that lives behind the glass.
+// Drop as the first child of a position:relative, overflow:hidden surface root;
+// keep the real content above it with position:relative / zIndex:1.
+// (Keyframes lg-drift-1/2/3 are defined in each page's global <style>.)
+function Aurora({ dim = false }) {
+  const blob = (extra) => ({ position: 'absolute', borderRadius: '50%', filter: 'blur(64px)', pointerEvents: 'none', ...extra });
+  return (
+    <div aria-hidden="true" style={{
+      position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0,
+      opacity: dim ? 0.55 : 1,
+      background: 'radial-gradient(125% 85% at 50% -12%, #211710 0%, #0B0907 62%)',
+    }}>
+      <div style={blob({ top: '-14%', left: '-12%', width: '72%', height: '52%',
+        background: 'radial-gradient(circle, rgba(224,168,91,0.20), transparent 70%)',
+        animation: 'lg-drift-1 26s ease-in-out infinite' })} />
+      <div style={blob({ bottom: '-20%', right: '-14%', width: '78%', height: '58%',
+        background: 'radial-gradient(circle, rgba(242,169,59,0.14), transparent 70%)',
+        animation: 'lg-drift-2 32s ease-in-out infinite' })} />
+      <div style={blob({ top: '28%', right: '-16%', width: '56%', height: '46%',
+        background: 'radial-gradient(circle, rgba(166,110,42,0.18), transparent 70%)',
+        animation: 'lg-drift-3 30s ease-in-out infinite' })} />
+    </div>
   );
 }
 
@@ -153,9 +190,10 @@ function StepDots({ t, current, total }) {
       <div style={{ display: 'flex', gap: 5 }}>
         {Array.from({ length: total }).map((_, i) => (
           <span key={i} style={{
-            width: i === current ? 22 : 8, height: 8, borderRadius: 999,
-            background: i <= current ? TOKENS.ink : TOKENS.border,
-            transition: 'width 200ms ease',
+            width: i === current ? 24 : 8, height: 8, borderRadius: 999,
+            background: i <= current ? `linear-gradient(180deg, ${TOKENS.accentBright}, ${TOKENS.accent})` : TOKENS.border,
+            boxShadow: i === current ? '0 0 12px -2px rgba(224,168,91,0.75)' : 'none',
+            transition: 'width 280ms cubic-bezier(.34,1.4,.64,1), box-shadow 280ms ease',
           }} />
         ))}
       </div>
@@ -166,4 +204,4 @@ function StepDots({ t, current, total }) {
   );
 }
 
-Object.assign(window, { Icon, BrowserChrome, Avatar, StatusDot, Button, ScreenHeading, StepDots });
+Object.assign(window, { Icon, BrowserChrome, Avatar, StatusDot, Button, ScreenHeading, StepDots, Aurora });

@@ -141,10 +141,14 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
 
   return (
     <div style={shell} className="fast-shell">
+      <Aurora />
+      <div style={{ position: 'relative', zIndex: 1, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
       {/* ── Compact header: identity + glanceable today total ─────────────── */}
       <div style={{ flexShrink: 0, padding: '18px 18px 16px',
                     display: 'flex', alignItems: 'center', gap: 12,
-                    borderBottom: `1px solid ${TOKENS.borderSoft}` }}>
+                    borderBottom: `1px solid ${TOKENS.borderSoft}`,
+                    backdropFilter: TOKENS.blur, WebkitBackdropFilter: TOKENS.blur,
+                    boxShadow: 'inset 0 1px 0 rgba(255,246,232,0.10)' }}>
         <Avatar initials={barber.initials} tint={barber.tint} text={barber.text} photo={barber.photo} size={40} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.01em',
@@ -158,7 +162,8 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
                            background: available ? TOKENS.accentSoft : TOKENS.surface,
                            border: `1px solid ${available ? TOKENS.accent : TOKENS.border}`,
                            color: available ? TOKENS.accent : TOKENS.muted, fontSize: 12, fontWeight: 700 }}>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: available ? TOKENS.accent : TOKENS.muted }} />
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: available ? TOKENS.accent : TOKENS.muted,
+                           animation: 'lg-pulse 1.8s ease-in-out infinite' }} />
             {available ? L.available : L.unavailable}
           </button>
         </div>
@@ -169,9 +174,9 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
       </div>
 
       {/* ── Body ──────────────────────────────────────────────────────────── */}
-      <div style={{ flex: 1, minHeight: 0, overflow: 'auto', padding: '20px 18px 10px' }}>
+      <div className="lg-rise" style={{ flex: 1, minHeight: 0, overflow: 'auto', padding: '20px 18px 10px' }}>
         {tab === 'now' && (
-          <div className="fast-chair" style={{ animation: 'fast-chair-in 280ms cubic-bezier(0.2,0.8,0.2,1)' }}>
+          <div className="fast-chair lg-stagger" style={{ animation: 'fast-chair-in 280ms cubic-bezier(0.2,0.8,0.2,1)' }}>
             {!available && (
               <div style={{ marginBottom: 16, padding: '14px 16px', borderRadius: 14,
                             background: TOKENS.redSoft, border: `1px solid ${TOKENS.red}55`,
@@ -204,7 +209,8 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
               const agenda = [...doneAgenda, ...nowAgenda, ...upAgenda];
               if (agenda.length === 0) {
                 return (
-                  <div style={{ ...PANEL, borderRadius: 16, padding: '28px 18px', textAlign: 'center', color: TOKENS.muted }}>
+                  <div style={{ ...PANEL, borderRadius: 18, padding: '28px 18px', textAlign: 'center', color: TOKENS.muted,
+                                boxShadow: 'inset 0 1px 0 rgba(255,246,232,0.08)' }}>
                     <div style={{ fontSize: 16, fontWeight: 600, color: TOKENS.inkSoft }}>{L.chairFree}</div>
                     <div style={{ fontSize: 14, marginTop: 6 }}>{L.empty}</div>
                   </div>
@@ -229,7 +235,9 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
 
       {/* ── Always-visible primary action: add a client in one tap ──────────── */}
       {tab === 'now' && (
-        <div style={{ flexShrink: 0, padding: '8px 16px 12px' }}>
+        <div style={{ flexShrink: 0, padding: '8px 16px 12px',
+                      backdropFilter: TOKENS.blur, WebkitBackdropFilter: TOKENS.blur,
+                      boxShadow: 'inset 0 1px 0 rgba(255,246,232,0.10)' }}>
           <button onClick={() => available && setAddOpen(true)} disabled={!available}
                   style={{ ...bigBtn(TOKENS.surface, TOKENS.ink, false, true), opacity: available ? 1 : 0.4, cursor: available ? 'pointer' : 'not-allowed' }}>
             <Icon name="plus" size={22} stroke={2.4} /> <span>{L.add}</span>
@@ -239,7 +247,9 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
 
       {/* ── Bottom tab bar (3 large targets) ────────────────────────────────── */}
       <div style={{ flexShrink: 0, display: 'flex', borderTop: `1px solid ${TOKENS.borderSoft}`,
-                    background: TOKENS.paper, paddingBottom: 6 }}>
+                    background: TOKENS.glassStrong, paddingBottom: 6,
+                    backdropFilter: TOKENS.blur, WebkitBackdropFilter: TOKENS.blur,
+                    boxShadow: 'inset 0 1px 0 rgba(255,246,232,0.10)' }}>
         {[['now', 'list', L.tabNow], ['done', 'check', L.tabDone], ['more', 'settings', L.tabMore]].map(([id, icon, label]) => (
           <button key={id} onClick={() => setTab(id)} style={{
             flex: 1, appearance: 'none', border: 'none', background: 'transparent', cursor: 'pointer',
@@ -250,6 +260,7 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
             <span style={{ fontSize: 12, fontWeight: tab === id ? 700 : 500 }}>{label}</span>
           </button>
         ))}
+      </div>
       </div>
 
       {toast && <FastToast key={toast.id} msg={toast.msg} />}
@@ -276,9 +287,11 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
   // styled-button helpers (kept inside for token access)
   function bigBtn(bg, fg, dashed, outline) {
     return {
-      width: '100%', minHeight: 60, borderRadius: 14, cursor: 'pointer', fontFamily: 'inherit',
-      background: outline ? 'transparent' : bg, color: fg,
-      border: outline ? `1px solid ${TOKENS.border}` : 'none',
+      width: '100%', minHeight: 60, borderRadius: 18, cursor: 'pointer', fontFamily: 'inherit',
+      background: outline ? TOKENS.surface : bg, color: fg,
+      border: outline ? `1px solid ${TOKENS.glassEdge}` : 'none',
+      backdropFilter: TOKENS.blur, WebkitBackdropFilter: TOKENS.blur,
+      boxShadow: 'inset 0 1px 0 rgba(255,246,232,0.10)',
       display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
       fontSize: 17, fontWeight: 700, letterSpacing: '-0.01em', marginTop: 16, padding: '0 18px',
     };
@@ -300,10 +313,15 @@ function TimelineRow({ it, last, lang, L, fmt, mmss, over, onFinish, onCall, onS
   const isDone = it.kind === 'done';
   const timeColor = isNow ? TOKENS.accent : isDone ? TOKENS.faint : TOKENS.muted;
   const card = {
-    flex: 1, minWidth: 0, marginBottom: 14, borderRadius: 14,
+    flex: 1, minWidth: 0, marginBottom: 14, borderRadius: isNow ? 22 : 18,
     background: isNow ? TOKENS.surfaceAlt : TOKENS.surface,
     border: isNow ? `2px solid ${TOKENS.accent}` : `1px solid ${TOKENS.borderSoft}`,
     padding: isNow ? 16 : '12px 14px', opacity: isDone ? 0.55 : 1,
+    backdropFilter: isNow ? TOKENS.blur : undefined,
+    WebkitBackdropFilter: isNow ? TOKENS.blur : undefined,
+    boxShadow: isNow
+      ? 'inset 0 1px 0 rgba(255,246,232,0.12), ' + TOKENS.shadowMd
+      : 'inset 0 1px 0 rgba(255,246,232,0.08)',
   };
   const outlineBtn = { flex: 1, minHeight: 48, borderRadius: 12, cursor: 'pointer', fontFamily: 'inherit',
     background: 'transparent', color: TOKENS.ink, border: `1px solid ${TOKENS.border}`,
@@ -320,7 +338,7 @@ function TimelineRow({ it, last, lang, L, fmt, mmss, over, onFinish, onCall, onS
                        background: isNow ? TOKENS.accent : (isDone ? TOKENS.faint : TOKENS.surface),
                        border: isNow ? `3px solid ${TOKENS.accentSoft}` : `2px solid ${isDone ? TOKENS.faint : TOKENS.border}` }} />
       </div>
-      <div style={card}>
+      <div style={card} className={isNow ? 'lg-pop' : undefined}>
         {isNow ? (
           <>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
@@ -381,8 +399,9 @@ function TimelineRow({ it, last, lang, L, fmt, mmss, over, onFinish, onCall, onS
 // One large queue row — name + service + one-tap "Start", with no-show tucked away.
 function FastRow({ c, i, lang, L, fmt, onStart, onNoShow, startSide }) {
   return (
-    <div className="fast-row" style={{ ...PANEL, borderRadius: 14, padding: '12px 12px 12px 14px',
+    <div className="fast-row" style={{ ...PANEL, borderRadius: 18, padding: '12px 12px 12px 14px',
                   display: 'flex', alignItems: 'center', gap: 12, minHeight: 72,
+                  boxShadow: 'inset 0 1px 0 rgba(255,246,232,0.08)',
                   animation: 'fast-row-in 260ms ease both', animationDelay: `${Math.min(i, 6) * 35}ms` }}>
       <div style={{ width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
                     background: TOKENS.surfaceAlt, color: TOKENS.muted, fontWeight: 700,
@@ -484,7 +503,9 @@ function FastDone({ L, lang, list, fmt, revenue }) {
   const shown = useCountUp(revenue);
   return (
     <div>
-      <div style={{ background: TOKENS.surfaceAlt, borderRadius: 18, padding: 18, marginBottom: 16, textAlign: 'center' }}>
+      <div style={{ background: TOKENS.surfaceAlt, borderRadius: 20, padding: 18, marginBottom: 16, textAlign: 'center',
+                    backdropFilter: TOKENS.blur, WebkitBackdropFilter: TOKENS.blur,
+                    boxShadow: 'inset 0 1px 0 rgba(255,246,232,0.12), ' + TOKENS.shadowMd }}>
         <div style={{ fontSize: 13, color: TOKENS.muted, textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>{L.revenue} · {L.today}</div>
         <div style={{ fontSize: 40, fontWeight: 800, marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{fmt(shown)}</div>
         <div style={{ fontSize: 14, color: TOKENS.muted, marginTop: 2 }}>{list.length} {L.clients}</div>
@@ -492,10 +513,11 @@ function FastDone({ L, lang, list, fmt, revenue }) {
       {list.length === 0 ? (
         <div style={{ color: TOKENS.muted, fontSize: 15, textAlign: 'center', padding: 20 }}>{L.none}</div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div className="lg-stagger" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {list.slice().reverse().map((c, i) => (
-            <div key={i} style={{ background: TOKENS.surface, borderRadius: 14, padding: '14px 16px',
-                                  display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div key={i} style={{ background: TOKENS.surface, borderRadius: 16, padding: '14px 16px',
+                                  display: 'flex', alignItems: 'center', gap: 12,
+                                  boxShadow: 'inset 0 1px 0 rgba(255,246,232,0.08)' }}>
               <div style={{ width: 34, height: 34, borderRadius: '50%', background: TOKENS.greenSoft, color: TOKENS.green,
                             display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Icon name="check" size={16} stroke={2.4} />
@@ -526,8 +548,10 @@ function FastMore({ L, t, lang, setLang, barber }) {
           }}>{label}</button>
         ))}
       </div>
-      <div style={{ marginTop: 20, background: TOKENS.surface, borderRadius: 16, padding: 16,
-                    display: 'flex', alignItems: 'center', gap: 14 }}>
+      <div style={{ marginTop: 20, background: TOKENS.surface, borderRadius: 18, padding: 16,
+                    display: 'flex', alignItems: 'center', gap: 14,
+                    backdropFilter: TOKENS.blur, WebkitBackdropFilter: TOKENS.blur,
+                    boxShadow: 'inset 0 1px 0 rgba(255,246,232,0.08)' }}>
         <Avatar initials={barber.initials} tint={barber.tint} text={barber.text} photo={barber.photo} size={48} />
         <div>
           <div style={{ fontSize: 16, fontWeight: 700 }}>{barber.name[lang]}</div>
