@@ -12,7 +12,6 @@ const FAST_STR = {
     queue: 'File d’attente', empty: 'File vide — soufflez un peu ☕', waiting: 'en attente',
     add: 'Ajouter un client', addToQueue: 'Ajouter à la file', walkIn: 'Walk-in',
     name: 'Nom (optionnel)', service: 'Service', cashIn: 'Encaisser', cash: 'Espèces',
-    card: 'Carte / CIB', noTip: 'Sans pourboire', tip: 'Pourboire', total: 'Total',
     noShow: 'Absent', today: "Aujourd’hui", clients: 'clients', doneToday: 'Terminés',
     revenue: 'Recette', available: 'Disponible', busy: 'Occupé', running: 'en cours',
     tabNow: 'File', tabDone: 'Terminés', tabMore: 'Réglages', language: 'Langue',
@@ -25,7 +24,6 @@ const FAST_STR = {
     queue: 'قائمة الانتظار', empty: 'القائمة فارغة — استرِح قليلاً ☕', waiting: 'بالانتظار',
     add: 'إضافة زبون', addToQueue: 'أضف إلى القائمة', walkIn: 'بدون موعد',
     name: 'الاسم (اختياري)', service: 'الخدمة', cashIn: 'تحصيل', cash: 'نقداً',
-    card: 'بطاقة', noTip: 'بدون بقشيش', tip: 'بقشيش', total: 'المجموع',
     noShow: 'غائب', today: 'اليوم', clients: 'زبائن', doneToday: 'المنتهية',
     revenue: 'المداخيل', available: 'متاح', busy: 'مشغول', running: 'جارٍ',
     tabNow: 'القائمة', tabDone: 'المنتهية', tabMore: 'الإعدادات', language: 'اللغة',
@@ -325,43 +323,25 @@ function tag(bg, fg) {
   };
 }
 
-// Fast checkout: amount up top, optional tip chips, two big "paid by" buttons.
+// Fast checkout: amount + a single big "cash" button — cash only, no tip.
 function FastPaySheet({ L, t, fmt, client, onClose, onPay }) {
-  const [tip, setTip] = React.useState(0);
-  const total = client.price + tip;
-  const tips = [0, 100, 200, 500];
+  const total = client.price;
   return (
     <div onClick={onClose} style={overlay()}>
       <div onClick={e => e.stopPropagation()} style={sheet(t.dir)}>
         <div style={grabber()} />
-        <div style={{ textAlign: 'center', marginBottom: 6 }}>
+        <div style={{ textAlign: 'center', marginBottom: 18 }}>
           <div style={{ fontSize: 14, color: TOKENS.muted }}>{L.cashIn} · {client.name}</div>
-          <div style={{ fontSize: 44, fontWeight: 800, letterSpacing: '-0.02em', marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{fmt(total)}</div>
+          <div style={{ fontSize: 46, fontWeight: 800, letterSpacing: '-0.02em', marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>{fmt(total)}</div>
         </div>
-        <div style={{ fontSize: 13, color: TOKENS.muted, fontWeight: 600, margin: '14px 2px 8px' }}>{L.tip}</div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8 }}>
-          {tips.map(v => (
-            <button key={v} onClick={() => setTip(v)} style={{
-              minHeight: 52, borderRadius: 12, cursor: 'pointer', fontFamily: 'inherit', fontSize: 15, fontWeight: 700,
-              background: tip === v ? TOKENS.accentSoft : TOKENS.surface, color: tip === v ? TOKENS.accent : TOKENS.ink,
-              border: `1.5px solid ${tip === v ? TOKENS.accent : TOKENS.border}`,
-            }}>{v === 0 ? L.noTip : `+${v}`}</button>
-          ))}
-        </div>
-        <div style={{ display: 'flex', gap: 10, marginTop: 18 }}>
-          <button onClick={() => onPay(total, 'cash')} style={payBtn()}><Icon name="check" size={20} stroke={2.4} /> {L.cash}</button>
-          <button onClick={() => onPay(total, 'card')} style={payBtn()}><Icon name="check" size={20} stroke={2.4} /> {L.card}</button>
-        </div>
+        <button onClick={() => onPay(total, 'cash')} style={{
+          width: '100%', minHeight: 66, borderRadius: 16, cursor: 'pointer', fontFamily: 'inherit',
+          background: TOKENS.accent, color: '#06210F', border: 'none',
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontSize: 19, fontWeight: 800,
+        }}><Icon name="check" size={24} stroke={2.6} /> {L.cash}</button>
       </div>
     </div>
   );
-  function payBtn() {
-    return {
-      flex: 1, minHeight: 60, borderRadius: 14, cursor: 'pointer', fontFamily: 'inherit',
-      background: TOKENS.accent, color: '#06210F', border: 'none',
-      display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 17, fontWeight: 800,
-    };
-  }
 }
 
 // Fast walk-in: optional name + tap a service chip + one big "add".
