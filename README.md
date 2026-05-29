@@ -9,18 +9,26 @@ queue in real time.
 Fully **bilingual** — French 🇫🇷 and Arabic 🇩🇿 (with proper right-to-left
 layout) — and prices are in Algerian dinar (DA / دج).
 
-> **Status:** UI/UX prototype. State is shared between the three surfaces via
-> lifted React state (no backend, no SMS) and persisted to `localStorage`, so a
-> confirmed booking lands in the barber's queue and survives a page refresh.
+> **Status:** UI/UX prototype, no backend. The all-in-one canvas shares state via
+> lifted React state (a confirmed booking lands instantly in the barber's queue)
+> and persists to `localStorage`. The customer **site** and the barber **app**
+> also ship as two **fully standalone projects** (`site/`, `app/`) — each runnable
+> and installable on its own.
 
 ---
 
 ## 🔗 Live demo
 
-Once GitHub Pages is enabled for this repo (see [Deployment](#-deployment)),
-the prototype is published automatically at:
+Once GitHub Pages is enabled for this repo (see [Deployment](#-deployment)), it's
+published automatically. There are three entry points:
 
-**https://msdsmfdslfsddkjfsdjklfsdl.github.io/barber/**
+| What | URL |
+| --- | --- |
+| **All-in-one canvas** (booking + queue + barber app together) | `…github.io/barber/` |
+| **Booking site** (customers) | `…github.io/barber/site/` |
+| **Barber app** (installable PWA) | `…github.io/barber/app/` |
+
+> Base: `https://msdsmfdslfsddkjfsdjklfsdl.github.io`
 
 ---
 
@@ -51,18 +59,20 @@ carries through the summary, the confirmation, and the barber's queue.
 The position moves up on its own and fires a **"C'est bientôt votre tour"**
 notification the moment you reach the front.
 
-### Barber app — Fast mode
+### Barber app — day timeline
 
-Redesigned for rush hours: the chair, the queue, finish-and-charge, and walk-ins
-all on **one screen**, with big one-tap actions and minimal clutter.
+Redesigned as a **day timeline (agenda)** in a clean **minimal-flat** style: the
+day runs top-to-bottom with appointment times and a connected spine. Done slots
+are dimmed; the active **"En chaise"** slot is highlighted with a live timer;
+upcoming slots start in one tap.
 
-| Command screen | Fast checkout | Add a walk-in | Arabic (RTL) |
+| Day timeline | Cash checkout | Add a walk-in | Arabic (RTL) |
 | :---: | :---: | :---: | :---: |
-| <img src="screenshots/redesign-1-now-fr.png" width="200" alt="Barber command screen" /> | <img src="screenshots/redesign-2-checkout-fr.png" width="200" alt="Fast checkout" /> | <img src="screenshots/redesign-3-add-fr.png" width="200" alt="Add a walk-in" /> | <img src="screenshots/redesign-5-now-ar.png" width="200" alt="Fast mode — Arabic, RTL" /> |
+| <img src="screenshots/redesign-1-now-fr.png" width="200" alt="Barber day timeline" /> | <img src="screenshots/redesign-2-checkout-fr.png" width="200" alt="Cash checkout" /> | <img src="screenshots/redesign-3-add-fr.png" width="200" alt="Add a walk-in" /> | <img src="screenshots/redesign-5-now-ar.png" width="200" alt="Timeline — Arabic, RTL" /> |
 
-One glance shows who's in the chair (with a live timer); **Terminer · Encaisser**
-finishes and charges in two taps; any waiting client starts with one tap; and
-**Ajouter un client** is always in reach.
+**Terminer · Encaisser** finishes and charges in two taps (cash); any upcoming
+client starts with one tap; and the tappable **Disponible / Indisponible** pill
+pauses or resumes accepting new clients.
 
 ---
 
@@ -78,32 +88,35 @@ The app is presented as three phone artboards on a design canvas:
    position, which **advances on its own** and notifies them when they're next.
    Three states: **people ahead of you**, **you're up next**, and **session complete**.
 
-3. **Barber · Mobile app (Fast mode)** — a single rush-hour command screen: the
-   client in the chair, one-tap **finish + charge**, one-tap **start next**,
-   the live queue, walk-ins, and today's takings — built for speed, not browsing.
+3. **Barber · Mobile app (day timeline)** — the day as a vertical agenda: done
+   slots dimmed, the active "En chaise" slot highlighted (live timer + one-tap
+   **finish & charge**), upcoming slots start in one tap. Plus walk-ins, today's
+   takings, and a **Disponible / Indisponible** toggle to pause new clients.
 
 ---
 
 ## ✨ Features
 
-- **Lift-state booking** — a confirmed customer booking appears instantly in the
-  barber's queue (idempotent by booking code), no backend round-trip.
-- **Service add-ons** — stack multiple prestations (e.g. *Coupe + Barbe + Brushing*)
-  with a live total in DA and summed duration, carried through to the barber's queue.
+- **Day-timeline barber dashboard** — the barber's day as a vertical agenda
+  (done · in-chair · upcoming) with big one-tap actions.
+- **Availability toggle** — a tappable *Disponible / Indisponible* pill that
+  pauses or resumes accepting new clients (banner + disabled "add" when off).
+- **Service add-ons** — stack multiple prestations (*Coupe + Barbe + Brushing*)
+  with a live total in DA, carried through to the barber's queue.
 - **Living queue tracker** — the customer's position moves up over time, the ETA
-  recomputes, and a *"C'est votre tour · حان دورك"* notification fires when they're
-  next (plus the three controllable states: waiting / next / done).
-- **Offline-ready PWA** — installable (add-to-home-screen, app icon) with a service
-  worker that caches the app shell for offline use.
-- **Persists across refresh** — bookings and barber profile edits are saved to
-  `localStorage`, so the prototype keeps its state between visits.
-- **Walk-in compose** — the barber can add a no-booking customer on the fly.
-- **Per-row call action** and a collapsible **"Terminés / Completed"** history.
-- **Editable barber profiles** — changing a barber's name/specialty/photo in
-  Settings reflects on the customer's booking page too.
+  recomputes, and a *"C'est votre tour · حان دورك"* notification fires when next.
+- **Lift-state booking** — in the canvas, a confirmed booking appears instantly
+  in the barber's queue (idempotent by code), no backend round-trip.
+- **Cash checkout** — finish & charge in two taps.
+- **Walk-ins & returning customers** — add a walk-in on the fly; the booking form
+  remembers name/phone for next time.
+- **Installable PWA** — add-to-home-screen, app icon, offline app shell, and a
+  branded loading splash.
+- **Persists to `localStorage`** — bookings and profile edits survive a refresh.
+- **Charcoal + Brass, minimal-flat design** — warm theme, clean flat surfaces.
 - **Bilingual FR / AR** with full RTL layout and Arabic typography tuning.
-- **Tweaks panel** to flip language, queue position, and booking density
-  (sparse vs. busy) live.
+- **Accessible** — visible focus rings, ≥44px touch targets, reduced-motion support.
+- **Tweaks panel** (canvas) to flip language, queue state, and density live.
 
 ### 💈 Service menu
 
@@ -135,8 +148,8 @@ barber's queue:
 - **React 18** — vendored locally in `vendor/` (no bundler, no CDN dependency).
 - **Babel Standalone** — transpiles the JSX in the browser, so there is **no
   build step**.
-- Plain CSS + design tokens (dark "Fade City" theme: slate background, green
-  primary).
+- Plain CSS + semantic design tokens — **Charcoal + Brass** theme (warm charcoal
+  background, brass/gold accent) in a minimal-flat style.
 - Google Fonts: Inter, Cairo, Geist Mono, IBM Plex Sans Arabic.
 - **PWA** — a web manifest + service worker make it installable and offline-capable.
 - **localStorage** — persists bookings and barber profile edits (no backend).
@@ -161,7 +174,8 @@ python3 -m http.server 8000
 npx serve .
 ```
 
-Then open <http://localhost:8000>.
+Then open <http://localhost:8000>. The standalone **`site/`** and **`app/`**
+folders run the same way — `cd` into either and serve it on its own.
 
 ---
 
@@ -188,26 +202,31 @@ run summary (and under the repo's **Environments → github-pages**).
 
 ```
 .
-├── index.html              # Entry point — loads React, Babel, then the JSX files
-├── manifest.webmanifest    # PWA manifest (installable, standalone)
-├── sw.js                   # Service worker (offline app shell)
-├── icon-192.png            # PWA app icons
-├── icon-512.png
+├── index.html              # All-in-one canvas (booking + queue + barber app)
+├── manifest.webmanifest    # PWA manifest          ├── sw.js  (offline service worker)
+├── icon-192.png · icon-512.png   # PWA icons (brass)
 ├── vendor/                 # React + Babel (vendored — no CDN at runtime)
 ├── src/
-│   ├── data.jsx            # Design tokens, bilingual strings (FR/AR), sample data
-│   ├── ui.jsx              # Shared UI primitives (icons, buttons, etc.)
+│   ├── data.jsx            # Design tokens (Charcoal+Brass) · FR/AR strings · data
+│   ├── ui.jsx              # Shared UI primitives (icons, avatar, button…)
 │   ├── customer-flow.jsx   # Customer booking flow (5 steps)
-│   ├── queue-tracker.jsx   # Live queue position page (3 states)
-│   ├── barber-app.jsx      # Barber's mobile dashboard
-│   └── app.jsx             # Composition: 3 artboards + Tweaks panel
-├── design-canvas.jsx       # Design-canvas scaffold (sections / artboards)
-├── ios-frame.jsx           # iOS device frame wrapper
-├── tweaks-panel.jsx        # Live "Tweaks" control panel
-├── screenshots/            # App & site screenshots (used in this README)
+│   ├── queue-tracker.jsx   # Live, auto-advancing queue page
+│   ├── barber-fast.jsx     # Barber app — day-timeline dashboard (current design)
+│   ├── barber-app.jsx      # Original barber dashboard (kept for reference)
+│   └── app.jsx             # Canvas composition + Tweaks panel
+├── design-canvas.jsx · ios-frame.jsx · tweaks-panel.jsx   # canvas scaffold
+│
+├── site/                   # ▶ Standalone booking SITE (own index/manifest/sw/icons)
+│   └── src/                #   data · ui · customer-flow · queue-tracker
+├── app/                    # ▶ Standalone barber APP — installable PWA
+│   └── src/                #   data · ui · helpers · barber-fast
+│
+├── screenshots/            # README screenshots
 └── .github/workflows/      # GitHub Pages deploy workflow
 ```
 
-> **Note:** `design-canvas.jsx`, `ios-frame.jsx`, and `tweaks-panel.jsx` are the
-> presentation scaffold that arranges the three phone artboards side by side and
-> exposes the live Tweaks. The actual product UI lives in `src/`.
+> **Note:** the repo root + `src/` is the all-in-one **canvas** (three phone
+> artboards + Tweaks). `site/` and `app/` are **self-contained** copies — each
+> bundles its own React/Babel, manifest, service worker and icons, so either can
+> be moved into its own repo and run as-is. The live "booking → barber" link only
+> works in the canvas (shared state); the split apps would need a backend to sync.
