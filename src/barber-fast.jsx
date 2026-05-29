@@ -32,12 +32,11 @@ const FAST_STR = {
   },
 };
 
-// Frosted-glass surface (translucent + backdrop blur) for the panels.
-const GLASS = {
-  background: 'rgba(255, 248, 240, 0.05)',
-  backdropFilter: 'blur(14px) saturate(1.2)',
-  WebkitBackdropFilter: 'blur(14px) saturate(1.2)',
-  border: '1px solid rgba(255, 240, 220, 0.10)',
+// Flat panel — minimal style: solid surface + a thin hairline border, no glass,
+// no shadow, no gradient.
+const PANEL = {
+  background: TOKENS.surface,
+  border: `1px solid ${TOKENS.borderSoft}`,
 };
 
 // Smoothly counts a number up to its new value (skips when reduce-motion is on).
@@ -129,8 +128,7 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
 
   const shell = {
     height: '100%', display: 'flex', flexDirection: 'column', position: 'relative',
-    background: `radial-gradient(620px 420px at 18% 0%, rgba(224,168,91,0.10), transparent 60%),
-                 radial-gradient(560px 460px at 100% 26%, rgba(200,137,59,0.08), transparent 62%), ${TOKENS.paper}`,
+    background: TOKENS.paper,
     color: TOKENS.ink, direction: dir, fontFamily: t.fontFamily,
     overflow: 'hidden',
   };
@@ -139,9 +137,8 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
   return (
     <div style={shell} className="fast-shell">
       {/* ── Compact header: identity + glanceable today total ─────────────── */}
-      <div style={{ flexShrink: 0, padding: '14px 16px 12px',
+      <div style={{ flexShrink: 0, padding: '18px 18px 16px',
                     display: 'flex', alignItems: 'center', gap: 12,
-                    background: 'rgba(255, 248, 240, 0.04)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
                     borderBottom: `1px solid ${TOKENS.borderSoft}` }}>
         <Avatar initials={barber.initials} tint={barber.tint} text={barber.text} photo={barber.photo} size={40} />
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -158,14 +155,14 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
       </div>
 
       {/* ── Body ──────────────────────────────────────────────────────────── */}
-      <div style={{ flex: 1, minHeight: 0, overflow: 'auto', padding: '16px 16px 8px' }}>
+      <div style={{ flex: 1, minHeight: 0, overflow: 'auto', padding: '20px 18px 10px' }}>
         {tab === 'now' && (
           <>
             {/* CURRENT CLIENT — the focus, with the single most important action */}
             <div key={current ? 'chair-' + current.client.id : 'chair-empty'} className="fast-chair"
                  style={{ animation: 'fast-chair-in 280ms cubic-bezier(0.2,0.8,0.2,1)' }}>
             {current ? (
-              <div style={{ ...GLASS, borderRadius: 20, padding: 18, marginBottom: 16, boxShadow: TOKENS.shadowSm }}>
+              <div style={{ ...PANEL, borderRadius: 16, padding: 20, marginBottom: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
                   <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: TOKENS.accent }}>{L.inChair}</span>
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 600,
@@ -199,7 +196,7 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
                     <span>{L.startNext} · {waiting[0].name}</span>
                   </button>
                 ) : (
-                  <div style={{ ...GLASS, borderRadius: 20, padding: '26px 18px', textAlign: 'center', color: TOKENS.muted }}>
+                  <div style={{ ...PANEL, borderRadius: 16, padding: '28px 18px', textAlign: 'center', color: TOKENS.muted }}>
                     <div style={{ fontSize: 16, fontWeight: 600, color: TOKENS.inkSoft }}>{L.chairFree}</div>
                     <div style={{ fontSize: 14, marginTop: 6 }}>{L.empty}</div>
                   </div>
@@ -241,7 +238,7 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
 
       {/* ── Bottom tab bar (3 large targets) ────────────────────────────────── */}
       <div style={{ flexShrink: 0, display: 'flex', borderTop: `1px solid ${TOKENS.borderSoft}`,
-                    background: 'rgba(255, 248, 240, 0.04)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', paddingBottom: 6 }}>
+                    background: TOKENS.paper, paddingBottom: 6 }}>
         {[['now', 'list', L.tabNow], ['done', 'check', L.tabDone], ['more', 'settings', L.tabMore]].map(([id, icon, label]) => (
           <button key={id} onClick={() => setTab(id)} style={{
             flex: 1, appearance: 'none', border: 'none', background: 'transparent', cursor: 'pointer',
@@ -266,7 +263,7 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
         .fast-shell button { transition: transform 90ms ease; -webkit-tap-highlight-color: transparent; }
         .fast-shell button:active { transform: scale(0.965); }
         .fast-shell .fast-row { transition: transform 130ms ease, box-shadow 130ms ease; }
-        .fast-shell .fast-row:hover { transform: translateY(-1px); box-shadow: 0 14px 28px -12px rgba(0,0,0,0.6); }
+        .fast-shell .fast-row:hover { background: #251F17; }
         @media (prefers-reduced-motion: reduce) {
           .fast-shell button:active { transform: none; }
           .fast-shell .fast-chair, .fast-shell .fast-row { animation: none !important; }
@@ -277,16 +274,12 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
 
   // styled-button helpers (kept inside for token access)
   function bigBtn(bg, fg, dashed, outline) {
-    const isAccent = bg === TOKENS.accent && !outline;
     return {
-      width: '100%', minHeight: 64, borderRadius: 16, cursor: 'pointer', fontFamily: 'inherit',
-      background: outline ? 'transparent'
-        : (isAccent ? `linear-gradient(180deg, ${TOKENS.accentBright}, ${TOKENS.accent})` : bg),
-      color: fg,
-      border: outline ? `2px dashed ${TOKENS.border}` : 'none',
-      boxShadow: isAccent ? TOKENS.glow : 'none',
+      width: '100%', minHeight: 60, borderRadius: 14, cursor: 'pointer', fontFamily: 'inherit',
+      background: outline ? 'transparent' : bg, color: fg,
+      border: outline ? `1px solid ${TOKENS.border}` : 'none',
       display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-      fontSize: 18, fontWeight: 800, letterSpacing: '-0.01em', marginTop: 16, padding: '0 18px',
+      fontSize: 17, fontWeight: 700, letterSpacing: '-0.01em', marginTop: 16, padding: '0 18px',
     };
   }
   function smallBtn() {
@@ -302,8 +295,8 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
 // One large queue row — name + service + one-tap "Start", with no-show tucked away.
 function FastRow({ c, i, lang, L, fmt, onStart, onNoShow, startSide }) {
   return (
-    <div className="fast-row" style={{ ...GLASS, borderRadius: 16, padding: '12px 12px 12px 14px',
-                  display: 'flex', alignItems: 'center', gap: 12, minHeight: 72, boxShadow: TOKENS.shadowSm,
+    <div className="fast-row" style={{ ...PANEL, borderRadius: 14, padding: '12px 12px 12px 14px',
+                  display: 'flex', alignItems: 'center', gap: 12, minHeight: 72,
                   animation: 'fast-row-in 260ms ease both', animationDelay: `${Math.min(i, 6) * 35}ms` }}>
       <div style={{ width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
                     background: TOKENS.surfaceAlt, color: TOKENS.muted, fontWeight: 700,
@@ -470,15 +463,14 @@ function FastToast({ msg }) {
 
 // shared sheet chrome
 function overlay() {
-  return { position: 'absolute', inset: 0, zIndex: 150, background: 'rgba(0,0,0,0.5)',
-           backdropFilter: 'blur(3px)', WebkitBackdropFilter: 'blur(3px)',
+  return { position: 'absolute', inset: 0, zIndex: 150, background: 'rgba(0,0,0,0.55)',
            display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', animation: 'fast-fade 160ms ease-out' };
 }
 function sheet(dir) {
-  return { background: 'rgba(37, 31, 23, 0.80)', backdropFilter: 'blur(22px) saturate(1.2)', WebkitBackdropFilter: 'blur(22px) saturate(1.2)',
+  return { background: TOKENS.surfaceAlt,
            borderRadius: '22px 22px 0 0', padding: '14px 18px 24px',
            direction: dir, animation: 'fast-up 240ms cubic-bezier(0.2,0.8,0.2,1)',
-           borderTop: `1px solid rgba(255, 240, 220, 0.12)`, boxShadow: TOKENS.shadowLg };
+           borderTop: `1px solid ${TOKENS.border}`, boxShadow: TOKENS.shadowLg };
 }
 function grabber() {
   return { width: 40, height: 4, borderRadius: 999, background: TOKENS.border, margin: '0 auto 16px' };
