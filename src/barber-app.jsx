@@ -354,6 +354,11 @@ function HomeTab({ t, lang, barber, barberId, now, doneRevenue, clientsDone, tot
           onReopen={() => onUpdateProfile && onUpdateProfile(barberId, { acceptingBookings: true })} />
       )}
 
+      {/* A booking just arrived from the customer flow — announce it on Home */}
+      {myLive.length > 0 && (
+        <LiveBookingsBanner t={t} count={myLive.length} latest={myLive[myLive.length - 1]} />
+      )}
+
       {/* ── Hero: current customer + circular timer ───────────────── */}
       {inSession && (
         <>
@@ -985,7 +990,7 @@ function QueueRow({ item, t, lang, last, index, edit, open, onToggle, vip, note,
 
               {/* 2×2 action grid */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                <RowActionBtn icon="phone" label={t.callCustomer} onClick={onToggle} />
+                <RowActionBtn icon="phone" label={t.callCustomer} onClick={() => { window.location.href = 'tel:+213555010101'; }} />
                 <RowActionBtn icon="clock" label={t.rescheduleAction}
                               onClick={() => setRescheduleOpen(true)} />
                 <RowActionBtn icon="skip"  label={t.markNoShow}        onClick={onNoShow} kind="warn" />
@@ -1110,7 +1115,8 @@ function CompletedRow({ item, t, last }) {
 
 function CallButton({ t }) {
   return (
-    <button style={{
+    <button onClick={() => { window.location.href = 'tel:+213555010101'; }}
+            aria-label={t.callCustomer} style={{
       appearance: 'none', cursor: 'pointer', fontFamily: 'inherit',
       width: 36, height: 36, borderRadius: 10,
       background: TOKENS.surface, color: TOKENS.ink,

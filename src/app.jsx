@@ -60,6 +60,9 @@ function App() {
   }, []);
 
   const clearLiveBookings = () => setLiveBookings([]);
+  const handleBookingCancelled = React.useCallback((code) => {
+    setLiveBookings(prev => prev.filter(b => b.code !== code));
+  }, []);
 
   return (
     <>
@@ -71,7 +74,8 @@ function App() {
             <PhoneFrame>
               <CustomerFlow lang={t.lang} density={t.density}
                             barberOverrides={barberOverrides}
-                            onConfirm={handleBookingConfirmed} />
+                            onConfirm={handleBookingConfirmed}
+                          onCancelBooking={handleBookingCancelled} />
             </PhoneFrame>
           </DCArtboard>
         </DCSection>

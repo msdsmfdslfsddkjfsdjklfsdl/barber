@@ -128,7 +128,7 @@ barber's queue:
 
 ## 🛠 Tech stack
 
-- **React 18** — loaded from a CDN (no bundler).
+- **React 18** — vendored locally in `vendor/` (no bundler, no CDN dependency).
 - **Babel Standalone** — transpiles the JSX in the browser, so there is **no
   build step**.
 - Plain CSS + design tokens (dark "Fade City" theme: slate background, green
@@ -189,6 +189,7 @@ run summary (and under the repo's **Environments → github-pages**).
 ├── sw.js                   # Service worker (offline app shell)
 ├── icon-192.png            # PWA app icons
 ├── icon-512.png
+├── vendor/                 # React + Babel (vendored — no CDN at runtime)
 ├── src/
 │   ├── data.jsx            # Design tokens, bilingual strings (FR/AR), sample data
 │   ├── ui.jsx              # Shared UI primitives (icons, buttons, etc.)

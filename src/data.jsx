@@ -42,6 +42,10 @@ const I18N = {
     bookCta: 'Réserver mon tour',
     back: 'Retour',
     notifTurn: 'C’est bientôt votre tour — restez à proximité',
+    keepBooking: 'Garder',
+    confirmCancel: 'Confirmer l’annulation',
+    bookingCancelled: 'Réservation annulée',
+    bookingCancelledSub: 'Votre place dans la file a été libérée.',
     // Simpler step indicator
     stepOf: (i, total) => `Étape ${i} sur ${total}`,
     // pick barber friendly status
@@ -267,6 +271,10 @@ const I18N = {
     bookCta: 'احجز دوري',
     back: 'رجوع',
     notifTurn: 'اقترب دورك — ابقَ قريباً',
+    keepBooking: 'إبقاء',
+    confirmCancel: 'تأكيد الإلغاء',
+    bookingCancelled: 'أُلغي حجزك',
+    bookingCancelledSub: 'تم تحرير مكانك في الطابور.',
     stepOf: (i, total) => `الخطوة ${i} من ${total}`,
     freeNowFriendly: 'متاح فوراً',
     waitTextShort: (m) => `حوالي ${m} د. انتظار`,

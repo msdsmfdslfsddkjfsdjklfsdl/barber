@@ -1,13 +1,16 @@
 // Fade City service worker — installable PWA + offline shell.
 // Cache-first for the local app files; CDN deps (React/Babel from unpkg) are
 // cached opaquely on first online load so the app keeps working offline.
-const CACHE = 'fade-city-v1';
+const CACHE = 'fade-city-v2';
 const ASSETS = [
   './',
   './index.html',
   './manifest.webmanifest',
   './icon-192.png',
   './icon-512.png',
+  './vendor/react.production.min.js',
+  './vendor/react-dom.production.min.js',
+  './vendor/babel.min.js',
   './tweaks-panel.jsx',
   './design-canvas.jsx',
   './ios-frame.jsx',

@@ -18,15 +18,26 @@ function resolveBarber(id, overrides) {
 
 Object.assign(window, { resolveBarber });
 
-function CustomerFlow({ lang = 'fr', density = 'sparse', barberOverrides = {}, onConfirm }) {
+// Returning customers: remember name + phone so the details step pre-fills and
+// "book again" is one tap. Stored locally (no backend).
+const FC_CUSTOMER_KEY = 'fc.customer';
+function loadCustomer() {
+  try { return JSON.parse(window.localStorage.getItem(FC_CUSTOMER_KEY)) || {}; }
+  catch (e) { return {}; }
+}
+function saveCustomer(info) {
+  try { window.localStorage.setItem(FC_CUSTOMER_KEY, JSON.stringify(info)); } catch (e) { /* private mode */ }
+}
+
+function CustomerFlow({ lang = 'fr', density = 'sparse', barberOverrides = {}, onConfirm, onCancelBooking }) {
   const t = I18N[lang];
   const [step, setStep] = React.useState(0);
   const [barberId, setBarberId] = React.useState(null);
   const [dayIdx, setDayIdx] = React.useState(0);       // 0 today, 1 tomorrow
   const [timeKey, setTimeKey] = React.useState(null);
   const [serviceIds, setServiceIds] = React.useState(['coupe_adulte']);
-  const [name, setName] = React.useState('');
-  const [phone, setPhone] = React.useState('');
+  const [name, setName] = React.useState(() => loadCustomer().name || '');
+  const [phone, setPhone] = React.useState(() => loadCustomer().phone || '');
   const [bookingCode, setBookingCode] = React.useState(null);
   const barber = barberId ? resolveBarber(barberId, barberOverrides) : null;
   // Selected services (add-ons) collapse into one combined "service" that flows
@@ -90,6 +101,7 @@ function CustomerFlow({ lang = 'fr', density = 'sparse', barberOverrides = {}, o
                                        serviceIds,
                                        code,
                                      });
+                                     saveCustomer({ name: (name || '').trim(), phone: (phone || '').trim() });
                                      setBookingCode(code);
                                      setStep(4);
                                    }}
@@ -99,12 +111,13 @@ function CustomerFlow({ lang = 'fr', density = 'sparse', barberOverrides = {}, o
                                    timeKey={timeKey} dayIdx={dayIdx}
                                    name={name} code={bookingCode}
                                    onViewQueue={() => setStep(5)}
-                                   onRestart={() => { setStep(0); setBarberId(null); setTimeKey(null); setName(''); setPhone(''); setBookingCode(null); setServiceIds(['coupe_adulte']); }} />}
+                                   onRestart={() => { setStep(0); setBarberId(null); setTimeKey(null); setName(loadCustomer().name || ''); setPhone(loadCustomer().phone || ''); setBookingCode(null); setServiceIds(['coupe_adulte']); }} />}
         {step === 5 && barber && <QueueTracker lang={lang} position="three"
                                    embeddedBarber={barber} service={service}
                                    timeKey={timeKey} code={bookingCode} customerName={name}
+                                   onCancel={() => { if (onCancelBooking) onCancelBooking(bookingCode); setStep(0); setBarberId(null); setTimeKey(null); setName(loadCustomer().name || ''); setPhone(loadCustomer().phone || ''); setBookingCode(null); setServiceIds(['coupe_adulte']); }}
                                    onBack={() => setStep(4)}
-                                   onRestart={() => { setStep(0); setBarberId(null); setTimeKey(null); setName(''); setPhone(''); setBookingCode(null); setServiceIds(['coupe_adulte']); }} />}
+                                   onRestart={() => { setStep(0); setBarberId(null); setTimeKey(null); setName(loadCustomer().name || ''); setPhone(loadCustomer().phone || ''); setBookingCode(null); setServiceIds(['coupe_adulte']); }} />}
       </div>
       <style>{`
         @keyframes fc-step-in {

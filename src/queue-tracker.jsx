@@ -2,7 +2,7 @@
 //   'three' = 3 people before you (default)
 //   'one'   = you're up next
 //   'done'  = session complete
-function QueueTracker({ lang = 'fr', position = 'three', embeddedBarber, service, timeKey, code, customerName, onBack, onRestart }) {
+function QueueTracker({ lang = 'fr', position = 'three', embeddedBarber, service, timeKey, code, customerName, onBack, onRestart, onCancel }) {
   const t = I18N[lang];
   const barber = embeddedBarber || BARBERS.find(b => b.id === 'sofiane');
   const showCode = code || 'FC-2641';
@@ -17,6 +17,8 @@ function QueueTracker({ lang = 'fr', position = 'three', embeddedBarber, service
 
   const [sim, setSim] = React.useState(seed);
   const [flash, setFlash] = React.useState(null);   // transient "it's your turn" banner
+  const [confirmCancel, setConfirmCancel] = React.useState(false);
+  const [cancelled, setCancelled] = React.useState(false);
   const tickRef = React.useRef(0);
   const prevKind = React.useRef(sim.kind);
 
@@ -60,6 +62,22 @@ function QueueTracker({ lang = 'fr', position = 'three', embeddedBarber, service
     color: TOKENS.ink, height: '100%', display: 'flex', flexDirection: 'column',
     position: 'relative',
   };
+
+  if (cancelled) {
+    return (
+      <div style={surface}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
+                      justifyContent: 'center', textAlign: 'center', padding: 28, gap: 14 }}>
+          <div style={{ width: 56, height: 56, borderRadius: '50%', background: TOKENS.surfaceAlt,
+                        color: TOKENS.muted, display: 'flex', alignItems: 'center',
+                        justifyContent: 'center', fontSize: 26 }}>✕</div>
+          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600 }}>{t.bookingCancelled}</h1>
+          <div style={{ fontSize: 14, color: TOKENS.muted, lineHeight: 1.5 }}>{t.bookingCancelledSub}</div>
+          {onRestart && <Button variant="accent" size="md" onClick={onRestart}>{t.bookAgain}</Button>}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={surface}>
@@ -132,6 +150,7 @@ function QueueTracker({ lang = 'fr', position = 'three', embeddedBarber, service
               </div>
             </div>
             <button aria-label={t.dir === 'rtl' ? 'الاتصال بالحلاق' : 'Appeler le coiffeur'}
+                    onClick={() => { window.location.href = 'tel:+213555010101'; }}
                     style={{ width: 36, height: 36, borderRadius: 10, border: `1px solid ${TOKENS.border}`,
                              background: TOKENS.surface, cursor: 'pointer', display: 'flex',
                              alignItems: 'center', justifyContent: 'center', color: TOKENS.ink }}>
@@ -148,10 +167,22 @@ function QueueTracker({ lang = 'fr', position = 'three', embeddedBarber, service
         {/* footer actions */}
         <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
           {sim.kind === 'done' && <Button variant="accent" leftIcon="star">{t.rateVisit}</Button>}
-          {sim.kind !== 'done' &&
-            <Button variant="secondary" size="md" style={{ color: TOKENS.red, borderColor: TOKENS.border }}>
+          {sim.kind !== 'done' && !confirmCancel && (
+            <Button variant="secondary" size="md"
+                    style={{ color: TOKENS.red, borderColor: TOKENS.border }}
+                    onClick={() => setConfirmCancel(true)}>
               {t.cancelBooking}
-            </Button>}
+            </Button>)}
+          {sim.kind !== 'done' && confirmCancel && (
+            <div style={{ display: 'flex', gap: 10 }}>
+              <Button variant="secondary" size="md" style={{ flex: 1 }}
+                      onClick={() => setConfirmCancel(false)}>{t.keepBooking}</Button>
+              <Button variant="secondary" size="md"
+                      style={{ flex: 1, color: '#fff', background: TOKENS.red, borderColor: TOKENS.red }}
+                      onClick={() => { setConfirmCancel(false); if (onCancel) onCancel(); else setCancelled(true); }}>
+                {t.confirmCancel}
+              </Button>
+            </div>)}
           {onRestart && sim.kind === 'done' && (
             <Button variant="ghost" size="md" onClick={onRestart}>{t.bookAgain}</Button>
           )}
