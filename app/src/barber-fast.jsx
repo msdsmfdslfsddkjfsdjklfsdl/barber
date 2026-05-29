@@ -14,7 +14,7 @@ const FAST_STR = {
     name: 'Nom (optionnel)', service: 'Service', cashIn: 'Encaisser',
     noShow: 'Absent', today: "Aujourd’hui", clients: 'clients', doneToday: 'Terminés',
     revenue: 'Recette', available: 'Disponible', busy: 'Occupé', running: 'en cours',
-    tabNow: 'File', tabDone: 'Terminés', tabMore: 'Réglages', language: 'Langue',
+    tabNow: 'Journée', tabDone: 'Terminés', tabMore: 'Réglages', language: 'Langue', daySchedule: 'Programme du jour',
     paidToast: (a) => `Encaissé · ${a}`, addedToast: 'Ajouté à la file', noShowToast: 'Marqué absent',
     none: 'Aucun client terminé pour l’instant.',
   },
@@ -26,7 +26,7 @@ const FAST_STR = {
     name: 'الاسم (اختياري)', service: 'الخدمة', cashIn: 'تحصيل',
     noShow: 'غائب', today: 'اليوم', clients: 'زبائن', doneToday: 'المنتهية',
     revenue: 'المداخيل', available: 'متاح', busy: 'مشغول', running: 'جارٍ',
-    tabNow: 'القائمة', tabDone: 'المنتهية', tabMore: 'الإعدادات', language: 'اللغة',
+    tabNow: 'اليوم', tabDone: 'المنتهية', tabMore: 'الإعدادات', language: 'اللغة', daySchedule: 'برنامج اليوم',
     paidToast: (a) => `تم التحصيل · ${a}`, addedToast: 'أُضيف إلى القائمة', noShowToast: 'تمّ وضع علامة غائب',
     none: 'لا يوجد زبائن منتهون بعد.',
   },
@@ -157,70 +157,43 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
       {/* ── Body ──────────────────────────────────────────────────────────── */}
       <div style={{ flex: 1, minHeight: 0, overflow: 'auto', padding: '20px 18px 10px' }}>
         {tab === 'now' && (
-          <>
-            {/* CURRENT CLIENT — the focus, with the single most important action */}
-            <div key={current ? 'chair-' + current.client.id : 'chair-empty'} className="fast-chair"
-                 style={{ animation: 'fast-chair-in 280ms cubic-bezier(0.2,0.8,0.2,1)' }}>
-            {current ? (
-              <div style={{ ...PANEL, borderRadius: 16, padding: 20, marginBottom: 16 }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: TOKENS.accent }}>{L.inChair}</span>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 600,
-                                 color: over ? TOKENS.amber : TOKENS.muted, fontVariantNumeric: 'tabular-nums' }}>
-                    <Icon name="clock" size={14} /> {mmss} <span style={{ fontWeight: 400 }}>· {over ? (lang === 'ar' ? 'تأخّر' : 'dépassé') : L.running}</span>
-                  </span>
-                </div>
-                <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.02em' }}>{current.client.name}</div>
-                <div style={{ fontSize: 15, color: TOKENS.muted, marginTop: 2 }}>
-                  {serviceLabel(current.client, lang)} · <span style={{ color: TOKENS.inkSoft, fontWeight: 600 }}>{fmt(current.client.price)}</span>
-                </div>
-
-                <button onClick={() => setPayOpen(true)} style={bigBtn(TOKENS.accent, '#06210F')}>
-                  <Icon name="check" size={22} stroke={2.6} />
-                  <span>{L.finish} · {fmt(current.client.price)}</span>
-                </button>
-                <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
-                  <button onClick={() => { window.location.href = 'tel:+213555010101'; }} style={smallBtn()}>
-                    <Icon name="phone" size={18} /> <span>{L.call}</span>
-                  </button>
-                  <button onClick={() => { setCurrent(null); showToast(`${L.skip} · ${current.client.name}`); }} style={smallBtn()}>
-                    <Icon name="skip" size={18} /> <span>{L.skip}</span>
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div style={{ marginBottom: 16 }}>
-                {waiting[0] ? (
-                  <button onClick={() => startClient(waiting[0])} style={bigBtn(TOKENS.accent, '#06210F', true)}>
-                    <Icon name="play" size={22} />
-                    <span>{L.startNext} · {waiting[0].name}</span>
-                  </button>
-                ) : (
+          <div className="fast-chair" style={{ animation: 'fast-chair-in 280ms cubic-bezier(0.2,0.8,0.2,1)' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase',
+                          color: TOKENS.muted, margin: '0 0 14px 4px' }}>{L.daySchedule}</div>
+            {(() => {
+              const doneTimes = ['08:30', '09:00', '09:25', '09:50', '08:00', '08:15', '07:45'];
+              const doneAgenda = doneList.map((c, i) => ({
+                name: c.name, service: c.service, price: c.price,
+                time: c.time || doneTimes[i] || '09:00', kind: 'done',
+              })).sort((a, b) => a.time.localeCompare(b.time));
+              const nowAgenda = current ? [{
+                name: current.client.name, service: current.client.service,
+                price: current.client.price, time: current.client.time || '—', kind: 'now',
+              }] : [];
+              const upAgenda = waiting.map(c => ({
+                name: c.name, service: c.service, price: c.price,
+                time: c.time || '—', kind: 'up', ref: c,
+              }));
+              const agenda = [...doneAgenda, ...nowAgenda, ...upAgenda];
+              if (agenda.length === 0) {
+                return (
                   <div style={{ ...PANEL, borderRadius: 16, padding: '28px 18px', textAlign: 'center', color: TOKENS.muted }}>
                     <div style={{ fontSize: 16, fontWeight: 600, color: TOKENS.inkSoft }}>{L.chairFree}</div>
                     <div style={{ fontSize: 14, marginTop: 6 }}>{L.empty}</div>
                   </div>
-                )}
-              </div>
-            )}
-            </div>
-
-            {/* QUEUE — large, tappable rows; each can be started in one tap */}
-            {waiting.length > 0 && (
-              <>
-                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', margin: '4px 4px 10px' }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', color: TOKENS.muted }}>{L.queue}</span>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: TOKENS.inkSoft }}>{waiting.length}</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {waiting.map((c, i) => (
-                    <FastRow key={c.id} c={c} i={i} lang={lang} L={L} fmt={fmt}
-                             onStart={() => startClient(c)} onNoShow={() => noShow(c)} startSide={startSide} />
-                  ))}
-                </div>
-              </>
-            )}
-          </>
+                );
+              }
+              return agenda.map((it, i) => (
+                <TimelineRow key={i} it={it} last={i === agenda.length - 1}
+                             lang={lang} L={L} fmt={fmt} mmss={mmss} over={over}
+                             onFinish={() => setPayOpen(true)}
+                             onCall={() => { window.location.href = 'tel:+213555010101'; }}
+                             onSkip={() => { setCurrent(null); showToast(`${L.skip} · ${it.name}`); }}
+                             onStart={() => it.ref && startClient(it.ref)}
+                             onNoShow={() => it.ref && noShow(it.ref)} />
+              ));
+            })()}
+          </div>
         )}
 
         {tab === 'done' && <FastDone L={L} lang={lang} list={doneList} fmt={fmt} revenue={revenue} />}
@@ -290,6 +263,91 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
       fontSize: 15, fontWeight: 600,
     };
   }
+}
+
+// Timeline / agenda row — the day as a vertical schedule. Done is dimmed, the
+// active appointment expands with its controls, upcoming gets a one-tap start.
+function TimelineRow({ it, last, lang, L, fmt, mmss, over, onFinish, onCall, onSkip, onStart, onNoShow }) {
+  const isNow = it.kind === 'now';
+  const isDone = it.kind === 'done';
+  const timeColor = isNow ? TOKENS.accent : isDone ? TOKENS.faint : TOKENS.muted;
+  const card = {
+    flex: 1, minWidth: 0, marginBottom: 14, borderRadius: 14,
+    background: isNow ? TOKENS.surfaceAlt : TOKENS.surface,
+    border: isNow ? `2px solid ${TOKENS.accent}` : `1px solid ${TOKENS.borderSoft}`,
+    padding: isNow ? 16 : '12px 14px', opacity: isDone ? 0.55 : 1,
+  };
+  const outlineBtn = { flex: 1, minHeight: 48, borderRadius: 12, cursor: 'pointer', fontFamily: 'inherit',
+    background: 'transparent', color: TOKENS.ink, border: `1px solid ${TOKENS.border}`,
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 15, fontWeight: 600 };
+  return (
+    <div style={{ display: 'flex', gap: 12, alignItems: 'stretch' }}>
+      <div style={{ width: 44, flexShrink: 0, textAlign: 'end', paddingTop: 13, fontSize: 14,
+                    fontWeight: isNow ? 800 : 600, color: timeColor, fontVariantNumeric: 'tabular-nums' }}>{it.time}</div>
+      <div style={{ width: 16, flexShrink: 0, position: 'relative', display: 'flex', justifyContent: 'center' }}>
+        <span style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)',
+                       top: 0, bottom: last ? 'auto' : -14, height: last ? 20 : undefined,
+                       width: 2, background: TOKENS.borderSoft }} />
+        <span style={{ position: 'absolute', top: 12, width: isNow ? 12 : 9, height: isNow ? 12 : 9, borderRadius: '50%',
+                       background: isNow ? TOKENS.accent : (isDone ? TOKENS.faint : TOKENS.surface),
+                       border: isNow ? `3px solid ${TOKENS.accentSoft}` : `2px solid ${isDone ? TOKENS.faint : TOKENS.border}` }} />
+      </div>
+      <div style={card}>
+        {isNow ? (
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
+              <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: TOKENS.accent }}>{L.inChair}</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 600,
+                             color: over ? TOKENS.amber : TOKENS.muted, fontVariantNumeric: 'tabular-nums' }}>
+                <Icon name="clock" size={14} /> {mmss}
+              </span>
+            </div>
+            <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.01em' }}>{it.name}</div>
+            <div style={{ fontSize: 14, color: TOKENS.muted, marginTop: 1 }}>
+              {serviceLabel(it, lang)} · <span style={{ color: TOKENS.inkSoft, fontWeight: 600 }}>{fmt(it.price)}</span>
+            </div>
+            <button onClick={onFinish} style={{ width: '100%', minHeight: 54, marginTop: 14, borderRadius: 12,
+                     cursor: 'pointer', fontFamily: 'inherit', background: TOKENS.accent, color: '#06210F', border: 'none',
+                     display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 16, fontWeight: 800 }}>
+              <Icon name="check" size={20} stroke={2.6} /> {L.finish} · {fmt(it.price)}
+            </button>
+            <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
+              <button onClick={onCall} style={outlineBtn}><Icon name="phone" size={16} /> {L.call}</button>
+              <button onClick={onSkip} style={outlineBtn}><Icon name="skip" size={16} /> {L.skip}</button>
+            </div>
+          </>
+        ) : isDone ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Icon name="check" size={16} stroke={2.4} style={{ color: TOKENS.accent, flexShrink: 0 }} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 15, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{it.name}</div>
+              <div style={{ fontSize: 12, color: TOKENS.muted }}>{serviceLabel(it, lang)}</div>
+            </div>
+            <span style={{ fontSize: 14, fontWeight: 700, color: TOKENS.accent, fontVariantNumeric: 'tabular-nums' }}>{fmt(it.price)}</span>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{it.name}</div>
+              <div style={{ fontSize: 13, color: TOKENS.muted, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {serviceLabel(it, lang)} · {fmt(it.price)}
+              </div>
+            </div>
+            <button aria-label={L.noShow} onClick={onNoShow} style={{ width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+                     cursor: 'pointer', fontFamily: 'inherit', background: 'transparent', color: TOKENS.muted,
+                     border: `1px solid ${TOKENS.border}`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="more" size={20} />
+            </button>
+            <button onClick={onStart} style={{ minHeight: 44, paddingInline: 16, borderRadius: 12, flexShrink: 0,
+                     cursor: 'pointer', fontFamily: 'inherit', background: TOKENS.accent, color: '#06210F', border: 'none',
+                     display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 15, fontWeight: 800 }}>
+              <Icon name="play" size={15} /> {L.start}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 // One large queue row — name + service + one-tap "Start", with no-show tucked away.
