@@ -13,7 +13,9 @@ const FAST_STR = {
     add: 'Ajouter un client', addToQueue: 'Ajouter à la file', walkIn: 'Walk-in',
     name: 'Nom (optionnel)', service: 'Service', cashIn: 'Encaisser',
     noShow: 'Absent', today: "Aujourd’hui", clients: 'clients', doneToday: 'Terminés',
-    revenue: 'Recette', available: 'Disponible', busy: 'Occupé', running: 'en cours',
+    revenue: 'Recette', available: 'Disponible', unavailable: 'Indisponible', busy: 'Occupé', running: 'en cours',
+    offToast: 'Vous n’acceptez plus de nouveaux clients', onToast: 'Disponible — clients acceptés',
+    closedBanner: 'Indisponible — réservations en pause', reactivate: 'Réactiver',
     tabNow: 'Journée', tabDone: 'Terminés', tabMore: 'Réglages', language: 'Langue', daySchedule: 'Programme du jour',
     paidToast: (a) => `Encaissé · ${a}`, addedToast: 'Ajouté à la file', noShowToast: 'Marqué absent',
     none: 'Aucun client terminé pour l’instant.',
@@ -25,7 +27,9 @@ const FAST_STR = {
     add: 'إضافة زبون', addToQueue: 'أضف إلى القائمة', walkIn: 'بدون موعد',
     name: 'الاسم (اختياري)', service: 'الخدمة', cashIn: 'تحصيل',
     noShow: 'غائب', today: 'اليوم', clients: 'زبائن', doneToday: 'المنتهية',
-    revenue: 'المداخيل', available: 'متاح', busy: 'مشغول', running: 'جارٍ',
+    revenue: 'المداخيل', available: 'متاح', unavailable: 'غير متاح', busy: 'مشغول', running: 'جارٍ',
+    offToast: 'لن تستقبل زبائن جدداً', onToast: 'متاح — تستقبل الزبائن',
+    closedBanner: 'غير متاح — استقبال الزبائن متوقّف', reactivate: 'إعادة التفعيل',
     tabNow: 'اليوم', tabDone: 'المنتهية', tabMore: 'الإعدادات', language: 'اللغة', daySchedule: 'برنامج اليوم',
     paidToast: (a) => `تم التحصيل · ${a}`, addedToast: 'أُضيف إلى القائمة', noShowToast: 'تمّ وضع علامة غائب',
     none: 'لا يوجد زبائن منتهون بعد.',
@@ -80,6 +84,7 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
   const [walkIns, setWalkIns] = React.useState([]);
   const [doneExtra, setDoneExtra] = React.useState([]);
   const [tab, setTab] = React.useState('now');
+  const [available, setAvailable] = React.useState(true);   // accepting new clients?
   const [payOpen, setPayOpen] = React.useState(false);
   const [addOpen, setAddOpen] = React.useState(false);
   const [toast, setToast] = React.useState(null);
@@ -146,7 +151,16 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
                         whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {barber.name[lang]}
           </div>
-          <StatusDot color={TOKENS.green} label={L.available} />
+          <button onClick={() => { setAvailable(a => !a); showToast(available ? L.offToast : L.onToast); }}
+                  aria-label={available ? L.available : L.unavailable}
+                  style={{ appearance: 'none', cursor: 'pointer', fontFamily: 'inherit', marginTop: 5,
+                           display: 'inline-flex', alignItems: 'center', gap: 7, height: 28, padding: '0 10px', borderRadius: 999,
+                           background: available ? TOKENS.accentSoft : TOKENS.surface,
+                           border: `1px solid ${available ? TOKENS.accent : TOKENS.border}`,
+                           color: available ? TOKENS.accent : TOKENS.muted, fontSize: 12, fontWeight: 700 }}>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: available ? TOKENS.accent : TOKENS.muted }} />
+            {available ? L.available : L.unavailable}
+          </button>
         </div>
         <div style={{ textAlign: dir === 'rtl' ? 'left' : 'right', lineHeight: 1.1 }}>
           <div style={{ fontSize: 18, fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>{fmt(revShown)}</div>
@@ -158,6 +172,19 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
       <div style={{ flex: 1, minHeight: 0, overflow: 'auto', padding: '20px 18px 10px' }}>
         {tab === 'now' && (
           <div className="fast-chair" style={{ animation: 'fast-chair-in 280ms cubic-bezier(0.2,0.8,0.2,1)' }}>
+            {!available && (
+              <div style={{ marginBottom: 16, padding: '14px 16px', borderRadius: 14,
+                            background: TOKENS.redSoft, border: `1px solid ${TOKENS.red}55`,
+                            display: 'flex', alignItems: 'center', gap: 12 }}>
+                <Icon name="pause" size={18} style={{ color: TOKENS.red, flexShrink: 0 }} />
+                <div style={{ flex: 1, minWidth: 0, fontSize: 14, fontWeight: 600, color: TOKENS.inkSoft }}>{L.closedBanner}</div>
+                <button onClick={() => { setAvailable(true); showToast(L.onToast); }} style={{
+                  appearance: 'none', cursor: 'pointer', fontFamily: 'inherit', height: 38, paddingInline: 14, borderRadius: 10,
+                  background: TOKENS.accent, color: '#06210F', border: 'none', fontSize: 13, fontWeight: 800, flexShrink: 0 }}>
+                  {L.reactivate}
+                </button>
+              </div>
+            )}
             <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase',
                           color: TOKENS.muted, margin: '0 0 14px 4px' }}>{L.daySchedule}</div>
             {(() => {
@@ -203,7 +230,8 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
       {/* ── Always-visible primary action: add a client in one tap ──────────── */}
       {tab === 'now' && (
         <div style={{ flexShrink: 0, padding: '8px 16px 12px' }}>
-          <button onClick={() => setAddOpen(true)} style={bigBtn(TOKENS.surface, TOKENS.ink, false, true)}>
+          <button onClick={() => available && setAddOpen(true)} disabled={!available}
+                  style={{ ...bigBtn(TOKENS.surface, TOKENS.ink, false, true), opacity: available ? 1 : 0.4, cursor: available ? 'pointer' : 'not-allowed' }}>
             <Icon name="plus" size={22} stroke={2.4} /> <span>{L.add}</span>
           </button>
         </div>
