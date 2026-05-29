@@ -7,19 +7,74 @@ function QueueTracker({ lang = 'fr', position = 'three', embeddedBarber, service
   const barber = embeddedBarber || BARBERS.find(b => b.id === 'sofiane');
   const showCode = code || 'FC-2641';
 
-  const state = (() => {
-    if (position === 'done') return { kind: 'done',  before: 0, eta: 0,  startedMinAgo: 22 };
-    if (position === 'one')  return { kind: 'next',  before: 0, eta: 4,  inSessionLabel: true };
-    return                     { kind: 'wait',  before: 3, eta: 28 };
-  })();
+  // ── Live queue simulation: seed from the `position` prop, then advance over
+  // time so the customer actually watches their place move up the line.
+  const seed = React.useCallback(() => {
+    if (position === 'done') return { kind: 'done', before: 0, eta: 0 };
+    if (position === 'one')  return { kind: 'next', before: 0, eta: 4 };
+    return { kind: 'wait', before: 3, eta: 28 };
+  }, [position]);
+
+  const [sim, setSim] = React.useState(seed);
+  const [flash, setFlash] = React.useState(null);   // transient "it's your turn" banner
+  const tickRef = React.useRef(0);
+  const prevKind = React.useRef(sim.kind);
+
+  // Reset whenever the controlled position changes (e.g. the Tweaks panel).
+  React.useEffect(() => { tickRef.current = 0; setFlash(null); setSim(seed()); }, [seed]);
+
+  // Advance roughly every 1.6s until the session is done.
+  React.useEffect(() => {
+    if (sim.kind === 'done') return;
+    const id = setInterval(() => {
+      setSim(s => {
+        if (s.kind === 'done') return s;
+        let { before, eta, kind } = s;
+        tickRef.current += 1;
+        eta = Math.max(0, eta - 1);
+        if (kind === 'wait') {
+          if (tickRef.current % 3 === 0 && before > 0) before -= 1;
+          if (before === 0) { kind = 'next'; eta = 4; }
+        } else if (kind === 'next' && eta <= 0) {
+          kind = 'done';
+        }
+        return { before, eta, kind };
+      });
+    }, 1600);
+    return () => clearInterval(id);
+  }, [sim.kind]);
+
+  // Fire the notification when we cross from waiting → "you're next".
+  React.useEffect(() => {
+    if (prevKind.current === 'wait' && sim.kind === 'next') {
+      setFlash('next');
+      const id = setTimeout(() => setFlash(null), 5000);
+      prevKind.current = sim.kind;
+      return () => clearTimeout(id);
+    }
+    prevKind.current = sim.kind;
+  }, [sim.kind]);
 
   const surface = {
     fontFamily: t.fontFamily, direction: t.dir, background: TOKENS.surface,
     color: TOKENS.ink, height: '100%', display: 'flex', flexDirection: 'column',
+    position: 'relative',
   };
 
   return (
     <div style={surface}>
+      {flash === 'next' && (
+        <div style={{
+          position: 'absolute', top: 14, insetInline: 14, zIndex: 60,
+          background: TOKENS.accent, color: '#fff', borderRadius: 14,
+          padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10,
+          boxShadow: '0 14px 34px -10px rgba(0,0,0,0.45)',
+          animation: 'fc-qt-flash 340ms cubic-bezier(0.2,0.8,0.2,1)',
+        }}>
+          <Icon name="bolt" size={18} />
+          <span style={{ fontSize: 14, fontWeight: 600 }}>{t.notifTurn}</span>
+        </div>
+      )}
       {onBack && (
         <div style={{ padding: '18px 22px 6px', flexShrink: 0,
                       display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -44,22 +99,22 @@ function QueueTracker({ lang = 'fr', position = 'three', embeddedBarber, service
           </div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6,
                         height: 22, padding: '0 10px', borderRadius: 999,
-                        background: state.kind === 'done' ? TOKENS.surfaceAlt : TOKENS.accentSoft,
-                        color: state.kind === 'done' ? TOKENS.muted : TOKENS.accent,
+                        background: sim.kind === 'done' ? TOKENS.surfaceAlt : TOKENS.accentSoft,
+                        color: sim.kind === 'done' ? TOKENS.muted : TOKENS.accent,
                         fontSize: 11, fontWeight: 500 }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%',
-                           background: state.kind === 'done' ? TOKENS.muted : TOKENS.accent,
-                           animation: state.kind === 'done' ? '' : 'pulse 1.8s ease-in-out infinite',
-                           boxShadow: state.kind === 'done' ? 'none' :
+                           background: sim.kind === 'done' ? TOKENS.muted : TOKENS.accent,
+                           animation: sim.kind === 'done' ? '' : 'pulse 1.8s ease-in-out infinite',
+                           boxShadow: sim.kind === 'done' ? 'none' :
                              `0 0 0 0 ${TOKENS.accent}40` }} />
-            {state.kind === 'done' ? t.doneStateTitle : t.livePill}
+            {sim.kind === 'done' ? t.doneStateTitle : t.livePill}
           </div>
         </div>
 
         {/* hero — position number + label */}
-        {state.kind === 'wait' && <WaitHero t={t} before={state.before} eta={state.eta} />}
-        {state.kind === 'next' && <NextHero t={t} eta={state.eta} />}
-        {state.kind === 'done' && <DoneHero t={t} />}
+        {sim.kind === 'wait' && <WaitHero t={t} before={sim.before} eta={sim.eta} />}
+        {sim.kind === 'next' && <NextHero t={t} eta={sim.eta} />}
+        {sim.kind === 'done' && <DoneHero t={t} />}
 
         {/* Your barber card */}
         <div style={{ marginTop: 24, marginBottom: 16 }}>
@@ -86,18 +141,18 @@ function QueueTracker({ lang = 'fr', position = 'three', embeddedBarber, service
         </div>
 
         {/* Live queue list (dotted, anonymized) */}
-        {state.kind !== 'done' && (
-          <QueueList t={t} before={state.before} />
+        {sim.kind !== 'done' && (
+          <QueueList t={t} before={sim.before} />
         )}
 
         {/* footer actions */}
         <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {state.kind === 'done' && <Button variant="accent" leftIcon="star">{t.rateVisit}</Button>}
-          {state.kind !== 'done' &&
+          {sim.kind === 'done' && <Button variant="accent" leftIcon="star">{t.rateVisit}</Button>}
+          {sim.kind !== 'done' &&
             <Button variant="secondary" size="md" style={{ color: TOKENS.red, borderColor: TOKENS.border }}>
               {t.cancelBooking}
             </Button>}
-          {onRestart && state.kind === 'done' && (
+          {onRestart && sim.kind === 'done' && (
             <Button variant="ghost" size="md" onClick={onRestart}>{t.bookAgain}</Button>
           )}
         </div>
@@ -107,6 +162,10 @@ function QueueTracker({ lang = 'fr', position = 'three', embeddedBarber, service
         @keyframes pulse {
           0%, 100% { box-shadow: 0 0 0 0 ${TOKENS.accent}55; }
           50%      { box-shadow: 0 0 0 6px ${TOKENS.accent}00; }
+        }
+        @keyframes fc-qt-flash {
+          from { transform: translateY(-12px); opacity: 0; }
+          to   { transform: translateY(0); opacity: 1; }
         }
       `}</style>
     </div>

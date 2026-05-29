@@ -21,18 +21,32 @@ function PhoneFrame({ children, width = 380, height = 800 }) {
   );
 }
 
+// Persist a slice of state to localStorage so customer bookings and barber
+// profile edits survive a page refresh — the prototype has no backend, but it
+// should still feel like one.
+function usePersistedState(key, initial) {
+  const [val, setVal] = React.useState(() => {
+    try { const raw = window.localStorage.getItem(key); return raw != null ? JSON.parse(raw) : initial; }
+    catch (e) { return initial; }
+  });
+  React.useEffect(() => {
+    try { window.localStorage.setItem(key, JSON.stringify(val)); } catch (e) { /* quota / private mode */ }
+  }, [key, val]);
+  return [val, setVal];
+}
+
 function App() {
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
 
   // Shared state — customer flow confirmations land here and propagate
   // straight into the barber's app panel (no SMS, no backend, just lift-state).
-  const [liveBookings, setLiveBookings] = React.useState([]);
-  const [activeBarberId, setActiveBarberId] = React.useState('sofiane');
+  const [liveBookings, setLiveBookings] = usePersistedState('fc.liveBookings', []);
+  const [activeBarberId, setActiveBarberId] = usePersistedState('fc.activeBarberId', 'sofiane');
 
   // Barber profile overrides set in Settings: { [barberId]: { name?, specialty?, photo? } }
   // Both the booking site AND the barber app read through these, so a
   // change in Settings is reflected on the customer's booking page too.
-  const [barberOverrides, setBarberOverrides] = React.useState({});
+  const [barberOverrides, setBarberOverrides] = usePersistedState('fc.barberOverrides', {});
   const updateBarberProfile = (barberId, patch) => {
     setBarberOverrides(prev => ({ ...prev, [barberId]: { ...prev[barberId], ...patch } }));
   };

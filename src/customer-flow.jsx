@@ -24,12 +24,29 @@ function CustomerFlow({ lang = 'fr', density = 'sparse', barberOverrides = {}, o
   const [barberId, setBarberId] = React.useState(null);
   const [dayIdx, setDayIdx] = React.useState(0);       // 0 today, 1 tomorrow
   const [timeKey, setTimeKey] = React.useState(null);
-  const [serviceId, setServiceId] = React.useState('coupe_adulte');
+  const [serviceIds, setServiceIds] = React.useState(['coupe_adulte']);
   const [name, setName] = React.useState('');
   const [phone, setPhone] = React.useState('');
   const [bookingCode, setBookingCode] = React.useState(null);
   const barber = barberId ? resolveBarber(barberId, barberOverrides) : null;
-  const service = SERVICES.find(s => s.id === serviceId) || SERVICES[0];
+  // Selected services (add-ons) collapse into one combined "service" that flows
+  // through every downstream surface: the summaries, the booking object, the
+  // barber's queue row, and the live tracker.
+  const pickedServices = serviceIds.map(id => SERVICES.find(s => s.id === id)).filter(Boolean);
+  const toggleService = (id) => setServiceIds(prev =>
+    prev.includes(id)
+      ? (prev.length > 1 ? prev.filter(x => x !== id) : prev)   // always keep at least one
+      : [...prev, id]
+  );
+  const service = {
+    name: {
+      fr: pickedServices.map(s => s.name.fr).join(' + '),
+      ar: pickedServices.map(s => s.name.ar).join(' + '),
+    },
+    price: pickedServices.reduce((sum, s) => sum + s.price, 0),
+    duration: pickedServices.reduce((sum, s) => sum + s.duration, 0),
+    count: pickedServices.length,
+  };
   const bookedSlots = BOOKED_BY_DENSITY[density];
 
   // Reset down-stream selections when language changes (avoids stale state)
@@ -53,7 +70,7 @@ function CustomerFlow({ lang = 'fr', density = 'sparse', barberOverrides = {}, o
                                    onPick={(id) => { setBarberId(id); setStep(2); }}
                                    onBack={() => setStep(0)} />}
         {step === 2 && barber && <PickTime t={t} lang={lang} barber={barber}
-                                   serviceId={serviceId} onServiceChange={setServiceId}
+                                   serviceIds={serviceIds} onToggleService={toggleService}
                                    dayIdx={dayIdx} onDay={setDayIdx}
                                    value={timeKey} bookedSlots={bookedSlots}
                                    onPick={(k) => { setTimeKey(k); setStep(3); }}
@@ -70,7 +87,7 @@ function CustomerFlow({ lang = 'fr', density = 'sparse', barberOverrides = {}, o
                                        name: (name || '').trim() || (t.dir === 'rtl' ? 'الزبون' : 'Client'),
                                        time: timeKey, dayIdx,
                                        service: service.name, price: service.price,
-                                       serviceId,
+                                       serviceIds,
                                        code,
                                      });
                                      setBookingCode(code);
@@ -82,12 +99,12 @@ function CustomerFlow({ lang = 'fr', density = 'sparse', barberOverrides = {}, o
                                    timeKey={timeKey} dayIdx={dayIdx}
                                    name={name} code={bookingCode}
                                    onViewQueue={() => setStep(5)}
-                                   onRestart={() => { setStep(0); setBarberId(null); setTimeKey(null); setName(''); setPhone(''); setBookingCode(null); setServiceId('coupe_adulte'); }} />}
+                                   onRestart={() => { setStep(0); setBarberId(null); setTimeKey(null); setName(''); setPhone(''); setBookingCode(null); setServiceIds(['coupe_adulte']); }} />}
         {step === 5 && barber && <QueueTracker lang={lang} position="three"
                                    embeddedBarber={barber} service={service}
                                    timeKey={timeKey} code={bookingCode} customerName={name}
                                    onBack={() => setStep(4)}
-                                   onRestart={() => { setStep(0); setBarberId(null); setTimeKey(null); setName(''); setPhone(''); setBookingCode(null); setServiceId('coupe_adulte'); }} />}
+                                   onRestart={() => { setStep(0); setBarberId(null); setTimeKey(null); setName(''); setPhone(''); setBookingCode(null); setServiceIds(['coupe_adulte']); }} />}
       </div>
       <style>{`
         @keyframes fc-step-in {
@@ -224,8 +241,7 @@ function BarberCard({ barber, lang, t, selected, onClick }) {
 // ─────────────────────────────────────────────────────────────
 // STEP 2 — Pick time
 // ─────────────────────────────────────────────────────────────
-function PickTime({ t, lang, barber, serviceId, onServiceChange, dayIdx, onDay, value, bookedSlots, onPick, onBack }) {
-  const service = SERVICES.find(s => s.id === serviceId) || SERVICES[0];
+function PickTime({ t, lang, barber, serviceIds, onToggleService, dayIdx, onDay, value, bookedSlots, onPick, onBack }) {
   // Pretend it's 09:55 right now so relative-time labels feel real.
   const NOW = { h: 9, m: 55 };
   const minsUntil = (slot) => {
@@ -264,7 +280,7 @@ function PickTime({ t, lang, barber, serviceId, onServiceChange, dayIdx, onDay, 
       </div>
 
       {/* Service picker */}
-      <ServicePicker t={t} lang={lang} value={serviceId} onChange={onServiceChange} />
+      <ServicePicker t={t} lang={lang} value={serviceIds} onToggle={onToggleService} />
 
       {/* Day tabs */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 18, marginTop: 22 }}>
@@ -351,9 +367,14 @@ function PickTime({ t, lang, barber, serviceId, onServiceChange, dayIdx, onDay, 
 
 // Collapsible service picker — default collapsed showing the current
 // selection; tap to expand to the full salon menu.
-function ServicePicker({ t, lang, value, onChange }) {
+// Multi-select service picker (add-ons): the collapsed header shows the running
+// total + combined label; expand to toggle individual prestations on/off.
+function ServicePicker({ t, lang, value, onToggle }) {
   const [open, setOpen] = React.useState(false);
-  const selected = SERVICES.find(s => s.id === value) || SERVICES[0];
+  const picked = SERVICES.filter(s => value.includes(s.id));
+  const total = picked.reduce((sum, s) => sum + s.price, 0);
+  const duration = picked.reduce((sum, s) => sum + s.duration, 0);
+  const summary = picked.map(s => s.name[lang]).join(' + ') || (t.dir === 'rtl' ? 'اختر خدمة' : 'Choisir une prestation');
 
   return (
     <div>
@@ -370,13 +391,15 @@ function ServicePicker({ t, lang, value, onChange }) {
           color: TOKENS.ink,
         }}>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 16, fontWeight: 600 }}>{selected.name[lang]}</div>
+            <div style={{ fontSize: 16, fontWeight: 600, whiteSpace: 'nowrap',
+                          overflow: 'hidden', textOverflow: 'ellipsis' }}>{summary}</div>
             <div style={{ fontSize: 12, color: TOKENS.inkSoft, marginTop: 2 }}>
-              {selected.duration} {t.min} · {t.dir === 'rtl' ? 'بإمكانك التغيير' : 'modifiable'}
+              {picked.length > 1 ? `${picked.length} ${t.dir === 'rtl' ? 'خدمات' : 'prestations'} · ` : ''}
+              {duration} {t.min} · {t.dir === 'rtl' ? 'أضف أو عدّل' : 'ajouter / modifier'}
             </div>
           </div>
           <div style={{ fontSize: 16, fontWeight: 600 }}>
-            {selected.price} <span style={{ fontSize: 11, color: TOKENS.muted, fontWeight: 500 }}>{t.dzd}</span>
+            {total} <span style={{ fontSize: 11, color: TOKENS.muted, fontWeight: 500 }}>{t.dzd}</span>
           </div>
           <span style={{ display: 'flex', alignItems: 'center', color: TOKENS.muted,
                          transform: open ? 'rotate(180deg)' : 'rotate(0)',
@@ -385,24 +408,25 @@ function ServicePicker({ t, lang, value, onChange }) {
           </span>
         </button>
 
-        {/* Expanded list */}
+        {/* Expanded list — checkboxes, multi-select */}
         {open && (
           <div style={{ borderTop: `1px solid ${TOKENS.borderSoft}` }}>
             {SERVICES.map((s, i) => {
-              const isSel = s.id === value;
+              const isSel = value.includes(s.id);
               return (
-                <button key={s.id} onClick={() => { onChange(s.id); setOpen(false); }} style={{
+                <button key={s.id} onClick={() => onToggle(s.id)} style={{
                   appearance: 'none', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'start',
                   width: '100%', background: isSel ? TOKENS.surfaceAlt : 'transparent', border: 'none',
                   padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12,
                   color: TOKENS.ink,
                   borderBottom: i < SERVICES.length - 1 ? `1px solid ${TOKENS.borderSoft}` : 'none',
                 }}>
-                  <span style={{ width: 18, height: 18, borderRadius: '50%',
+                  <span style={{ width: 20, height: 20, borderRadius: 6,
                                  border: `1.5px solid ${isSel ? TOKENS.accent : TOKENS.faint}`,
+                                 background: isSel ? TOKENS.accent : 'transparent',
                                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                 flexShrink: 0 }}>
-                    {isSel && <span style={{ width: 8, height: 8, borderRadius: '50%', background: TOKENS.accent }} />}
+                                 flexShrink: 0, color: '#fff' }}>
+                    {isSel && <Icon name="check" size={13} stroke={3} />}
                   </span>
                   <span style={{ flex: 1, fontSize: 15, fontWeight: isSel ? 600 : 500 }}>
                     {s.name[lang]}

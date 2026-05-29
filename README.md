@@ -9,9 +9,9 @@ queue in real time.
 Fully **bilingual** — French 🇫🇷 and Arabic 🇩🇿 (with proper right-to-left
 layout) — and prices are in Algerian dinar (DA / دج).
 
-> **Status:** UI/UX prototype. State is shared in-memory between the three
-> surfaces (no backend, no SMS) — confirming a booking on the customer flow
-> propagates straight into the barber's queue via lifted React state.
+> **Status:** UI/UX prototype. State is shared between the three surfaces via
+> lifted React state (no backend, no SMS) and persisted to `localStorage`, so a
+> confirmed booking lands in the barber's queue and survives a page refresh.
 
 ---
 
@@ -61,7 +61,15 @@ The app is presented as three phone artboards on a design canvas:
 
 - **Lift-state booking** — a confirmed customer booking appears instantly in the
   barber's queue (idempotent by booking code), no backend round-trip.
-- **Live queue tracker** with three customer-facing states.
+- **Service add-ons** — stack multiple prestations (e.g. *Coupe + Barbe + Brushing*)
+  with a live total in DA and summed duration, carried through to the barber's queue.
+- **Living queue tracker** — the customer's position moves up over time, the ETA
+  recomputes, and a *"C'est votre tour · حان دورك"* notification fires when they're
+  next (plus the three controllable states: waiting / next / done).
+- **Offline-ready PWA** — installable (add-to-home-screen, app icon) with a service
+  worker that caches the app shell for offline use.
+- **Persists across refresh** — bookings and barber profile edits are saved to
+  `localStorage`, so the prototype keeps its state between visits.
 - **Walk-in compose** — the barber can add a no-booking customer on the fly.
 - **Per-row call action** and a collapsible **"Terminés / Completed"** history.
 - **Editable barber profiles** — changing a barber's name/specialty/photo in

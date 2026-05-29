@@ -41,6 +41,7 @@ const I18N = {
     reviews: '212 avis',
     bookCta: 'Réserver mon tour',
     back: 'Retour',
+    notifTurn: 'C’est bientôt votre tour — restez à proximité',
     // Simpler step indicator
     stepOf: (i, total) => `Étape ${i} sur ${total}`,
     // pick barber friendly status
@@ -265,6 +266,7 @@ const I18N = {
     reviews: '212 تقييم',
     bookCta: 'احجز دوري',
     back: 'رجوع',
+    notifTurn: 'اقترب دورك — ابقَ قريباً',
     stepOf: (i, total) => `الخطوة ${i} من ${total}`,
     freeNowFriendly: 'متاح فوراً',
     waitTextShort: (m) => `حوالي ${m} د. انتظار`,
