@@ -108,8 +108,8 @@ function Button({ children, onClick, variant = 'primary', size = 'lg', disabled,
     sm: { height: 36, padding: '0 14px', fontSize: 14, borderRadius: 10 },
   };
   const variants = {
-    primary:   { background: TOKENS.ink,     color: TOKENS.paper, fontWeight: 600 },
-    accent:    { background: TOKENS.accent,  color: '#0A0A0B',    fontWeight: 700 },
+    primary:   { background: TOKENS.ink,     color: TOKENS.paper, fontWeight: 600, boxShadow: TOKENS.shadowSm },
+    accent:    { background: `linear-gradient(180deg, ${TOKENS.accentBright}, ${TOKENS.accent})`, color: '#06210F', fontWeight: 700, boxShadow: TOKENS.glow },
     secondary: { background: TOKENS.surface, color: TOKENS.ink, border: `1px solid ${TOKENS.border}`, fontWeight: 500 },
     ghost:     { background: 'transparent',  color: TOKENS.ink, fontWeight: 500 },
     danger:    { background: TOKENS.redSoft, color: TOKENS.red, fontWeight: 500 },

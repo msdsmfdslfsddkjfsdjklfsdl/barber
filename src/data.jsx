@@ -5,9 +5,9 @@ const TOKENS = {
   // Dark Minimal — slate background, calm whitespace, green primary
   ink:        '#F9FAFB',     // primary text
   inkSoft:    '#F3F4F6',
-  paper:      '#111827',     // page background
-  surface:    '#1F2937',     // cards
-  surfaceAlt: '#28323F',     // featured / inset
+  paper:      '#0A0E17',     // page background (deeper — more depth + contrast)
+  surface:    '#161F2C',     // cards (sit above the darker page)
+  surfaceAlt: '#1E2A39',     // featured / inset
   border:     '#2F3A47',
   borderSoft: '#252F3A',
   muted:      '#9CA3AF',     // secondary text
@@ -22,6 +22,12 @@ const TOKENS = {
   amberSoft:  '#3A2A0E',
   red:        '#EF4444',     // error
   redSoft:    '#3A1A1C',
+  accentBright: '#22C55E',   // brighter green for gradients + glow
+  // Elevation + glow — applied via boxShadow
+  shadowSm:   '0 6px 18px -8px rgba(0,0,0,0.55)',
+  shadowMd:   '0 18px 44px -16px rgba(0,0,0,0.60)',
+  shadowLg:   '0 30px 70px -22px rgba(0,0,0,0.66)',
+  glow:       '0 10px 28px -6px rgba(34,197,94,0.50)',
 };
 
 const I18N = {

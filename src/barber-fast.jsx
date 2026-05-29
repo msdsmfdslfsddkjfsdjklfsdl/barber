@@ -154,7 +154,7 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
             <div key={current ? 'chair-' + current.client.id : 'chair-empty'} className="fast-chair"
                  style={{ animation: 'fast-chair-in 280ms cubic-bezier(0.2,0.8,0.2,1)' }}>
             {current ? (
-              <div style={{ background: TOKENS.surfaceAlt, borderRadius: 20, padding: 18, marginBottom: 16 }}>
+              <div style={{ background: TOKENS.surfaceAlt, borderRadius: 20, padding: 18, marginBottom: 16, boxShadow: TOKENS.shadowSm }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
                   <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: TOKENS.accent }}>{L.inChair}</span>
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 600,
@@ -254,6 +254,8 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
         @keyframes fast-row-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
         .fast-shell button { transition: transform 90ms ease; -webkit-tap-highlight-color: transparent; }
         .fast-shell button:active { transform: scale(0.965); }
+        .fast-shell .fast-row { transition: transform 130ms ease, box-shadow 130ms ease; }
+        .fast-shell .fast-row:hover { transform: translateY(-1px); box-shadow: 0 14px 28px -12px rgba(0,0,0,0.6); }
         @media (prefers-reduced-motion: reduce) {
           .fast-shell button:active { transform: none; }
           .fast-shell .fast-chair, .fast-shell .fast-row { animation: none !important; }
@@ -264,10 +266,14 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
 
   // styled-button helpers (kept inside for token access)
   function bigBtn(bg, fg, dashed, outline) {
+    const isAccent = bg === TOKENS.accent && !outline;
     return {
       width: '100%', minHeight: 64, borderRadius: 16, cursor: 'pointer', fontFamily: 'inherit',
-      background: outline ? 'transparent' : bg, color: fg,
-      border: outline ? `2px dashed ${TOKENS.border}` : (dashed ? `2px dashed ${TOKENS.accentDeep}` : 'none'),
+      background: outline ? 'transparent'
+        : (isAccent ? `linear-gradient(180deg, ${TOKENS.accentBright}, ${TOKENS.accent})` : bg),
+      color: fg,
+      border: outline ? `2px dashed ${TOKENS.border}` : 'none',
+      boxShadow: isAccent ? TOKENS.glow : 'none',
       display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
       fontSize: 18, fontWeight: 800, letterSpacing: '-0.01em', marginTop: 16, padding: '0 18px',
     };
@@ -286,7 +292,7 @@ function BarberFast({ lang = 'fr', setLang, density = 'busy', barberId = 'sofian
 function FastRow({ c, i, lang, L, fmt, onStart, onNoShow, startSide }) {
   return (
     <div className="fast-row" style={{ background: TOKENS.surface, borderRadius: 16, padding: '12px 12px 12px 14px',
-                  display: 'flex', alignItems: 'center', gap: 12, minHeight: 72,
+                  display: 'flex', alignItems: 'center', gap: 12, minHeight: 72, boxShadow: TOKENS.shadowSm,
                   animation: 'fast-row-in 260ms ease both', animationDelay: `${Math.min(i, 6) * 35}ms` }}>
       <div style={{ width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
                     background: TOKENS.surfaceAlt, color: TOKENS.muted, fontWeight: 700,
@@ -453,12 +459,14 @@ function FastToast({ msg }) {
 
 // shared sheet chrome
 function overlay() {
-  return { position: 'absolute', inset: 0, zIndex: 150, background: 'rgba(0,0,0,0.45)',
+  return { position: 'absolute', inset: 0, zIndex: 150, background: 'rgba(0,0,0,0.5)',
+           backdropFilter: 'blur(3px)', WebkitBackdropFilter: 'blur(3px)',
            display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', animation: 'fast-fade 160ms ease-out' };
 }
 function sheet(dir) {
-  return { background: TOKENS.paper, borderRadius: '22px 22px 0 0', padding: '14px 18px 24px',
-           direction: dir, animation: 'fast-up 240ms cubic-bezier(0.2,0.8,0.2,1)', borderTop: `1px solid ${TOKENS.border}` };
+  return { background: TOKENS.surfaceAlt, borderRadius: '22px 22px 0 0', padding: '14px 18px 24px',
+           direction: dir, animation: 'fast-up 240ms cubic-bezier(0.2,0.8,0.2,1)',
+           borderTop: `1px solid ${TOKENS.border}`, boxShadow: TOKENS.shadowLg };
 }
 function grabber() {
   return { width: 40, height: 4, borderRadius: 999, background: TOKENS.border, margin: '0 auto 16px' };
