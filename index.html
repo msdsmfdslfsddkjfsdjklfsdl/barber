@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fade City — Booking & Queue · Prototype</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #111827; }
+  body { font-family: "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+         color: #F9FAFB; -webkit-font-smoothing: antialiased;
+         text-rendering: optimizeLegibility;
+         font-feature-settings: "cv11" 1, "ss01" 1; }
+  /* Arabic typography: slightly larger optical size + a touch more line-height */
+  [dir="rtl"] { font-feature-settings: "kern" 1, "liga" 1; letter-spacing: 0; }
+  [dir="rtl"] input, [dir="rtl"] button, [dir="rtl"] h1, [dir="rtl"] h2 {
+    letter-spacing: 0;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  button { font-family: inherit; }
+  input, textarea { font-family: inherit; }
+  input::placeholder { color: #4B5563; }
+  input:focus { border-color: #16A34A !important; }
+  ::selection { background: #16A34A55; }
+
+  /* Ambient pulsing light circles in the background — like a heartbeat */
+  .ambient-blur {
+    position: fixed; pointer-events: none; z-index: 0;
+    border-radius: 50%; filter: blur(70px);
+    will-change: transform, opacity;
+  }
+  .ambient-blur.a { top: -120px; left: -120px; width: 420px; height: 420px;
+                    background: radial-gradient(circle, rgba(22,163,74,0.20), transparent 70%);
+                    animation: heart-pulse 2.8s ease-in-out infinite, drift-a 32s ease-in-out infinite; }
+  .ambient-blur.b { bottom: -160px; right: -160px; width: 500px; height: 500px;
+                    background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 70%);
+                    animation: heart-pulse 2.8s ease-in-out infinite 0.3s, drift-b 38s ease-in-out infinite; }
+  .ambient-blur.c { top: 35%; right: -140px; width: 340px; height: 340px;
+                    background: radial-gradient(circle, rgba(34,197,94,0.15), transparent 70%);
+                    animation: heart-pulse 2.8s ease-in-out infinite 0.6s, drift-c 28s ease-in-out infinite; }
+  @keyframes heart-pulse {
+    0%, 100% { opacity: 0.30; transform: scale(1); }
+    14%      { opacity: 0.55; transform: scale(1.12); }
+    28%      { opacity: 0.38; transform: scale(1.04); }
+    42%      { opacity: 0.60; transform: scale(1.16); }
+    70%      { opacity: 0.32; transform: scale(1); }
+  }
+  @keyframes drift-a {
+    0%, 100% { transform: translate(0, 0); }
+    50%      { transform: translate(60px, 80px); }
+  }
+  @keyframes drift-b {
+    0%, 100% { transform: translate(0, 0); }
+    50%      { transform: translate(-80px, -60px); }
+  }
+  @keyframes drift-c {
+    0%, 100% { transform: translate(0, 0); }
+    50%      { transform: translate(-40px, 50px); }
+  }
+</style>
+</head>
+<body>
+  <div class="ambient-blur a"></div>
+  <div class="ambient-blur b"></div>
+  <div class="ambient-blur c"></div>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" src="design-canvas.jsx"></script>
+  <script type="text/babel" src="ios-frame.jsx"></script>
+
+  <script type="text/babel" src="src/data.jsx"></script>
+  <script type="text/babel" src="src/ui.jsx"></script>
+  <script type="text/babel" src="src/customer-flow.jsx"></script>
+  <script type="text/babel" src="src/queue-tracker.jsx"></script>
+  <script type="text/babel" src="src/barber-app.jsx"></script>
+  <script type="text/babel" src="src/app.jsx"></script>
+</body>
+</html>
